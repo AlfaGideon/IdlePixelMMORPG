@@ -446,7 +446,7 @@ func _draw_camp(t: float) -> void:
 				col = _mix(GUARD, OUTLINE, 0.5)
 			_put(hx + i, hy + j, col)
 	var spear_x := hx + GUARD_FRAME[0].length() + 1
-	for j in range(-2, GUARD_FRAME.size() + 2):
+	for j in range(-1, GUARD_FRAME.size()):
 		_put(spear_x, hy + j, Color8(92, 104, 138))
 	_put(spear_x, hy - 3, _mix(GUARD, Color8(206, 216, 236), 0.7))
 
