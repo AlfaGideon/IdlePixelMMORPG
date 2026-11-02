@@ -391,7 +391,7 @@ func _draw_fight() -> void:
 
 	var arena := _arena_rect()
 	_panel(arena.position.x, arena.position.y, arena.size.x, arena.size.y, ARENA_SKY)
-	var ground_y := arena.position.y + 78
+	var ground_y := arena.position.y + 96
 	for y in range(ground_y, arena.end.y - 1):
 		var k := float(y - ground_y) / float(maxi(1, arena.end.y - ground_y))
 		_rect(arena.position.x + 1, y, arena.size.x - 2, 1, ARENA_GROUND.lerp(ARENA_GROUND_HI, k))
@@ -406,7 +406,7 @@ func _draw_fight() -> void:
 	# кромка травы по горизонту
 	for i in range(arena.position.x + 1, arena.end.x - 1):
 		if (i * 7) % 5 == 0:
-			_px(i, ground_y - 1, Color8(46, 70, 62))
+			_px(i, ground_y - 1, Color8(66, 96, 84))
 	# точки на земле
 	for i in range(arena.position.x + 3, arena.end.x - 3, 6):
 		_px(i, ground_y + 6 + (i % 5), Color8(40, 52, 76))
@@ -573,7 +573,7 @@ func _draw_shop() -> void:
 # --- футер ---------------------------------------------------------------
 
 func _tab_rect(i: int) -> Rect2i:
-	var w := 34
+	var w := 33
 	var gap := 1
 	var total := w * TABS.size() + gap * (TABS.size() - 1)
 	var x0 := (GRID_W - total) / 2
