@@ -165,7 +165,11 @@ var animation_finished := false
 
 var _image: Image
 var _texture: ImageTexture
-var _stars: Array = []
+var _star_x: PackedInt32Array = PackedInt32Array()
+var _star_y: PackedInt32Array = PackedInt32Array()
+var _star_colors: Array[Color] = []
+var _star_phase: PackedFloat32Array = PackedFloat32Array()
+var _star_speed: PackedFloat32Array = PackedFloat32Array()
 var _time := 0.0
 var _done_at := -1.0
 var _frame := 0
@@ -184,17 +188,17 @@ func _ready() -> void:
 
 
 func _generate_stars() -> void:
-	_stars.clear()
+	_star_x = PackedInt32Array()
+	_star_y = PackedInt32Array()
+	_star_colors = []
+	_star_phase = PackedFloat32Array()
+	_star_speed = PackedFloat32Array()
 	for i in 96:
-		var x := int(_hash01(i, 1.3) * GRID_WIDTH)
-		var y := int(_hash01(i, 2.7) * _horizon() * 0.94)
-		_stars.append({
-			"x": x,
-			"y": y,
-			"color": STAR[i % STAR.size()],
-			"phase": _hash01(i, 4.1) * TAU,
-			"speed": 0.5 + _hash01(i, 5.9) * 2.2,
-		})
+		_star_x.append(int(_hash01(i, 1.3) * GRID_WIDTH))
+		_star_y.append(int(_hash01(i, 2.7) * _horizon() * 0.94))
+		_star_colors.append(STAR[i % STAR.size()])
+		_star_phase.append(_hash01(i, 4.1) * TAU)
+		_star_speed.append(0.5 + _hash01(i, 5.9) * 2.2)
 
 
 func _process(delta: float) -> void:
@@ -338,12 +342,17 @@ func _draw_moon() -> void:
 
 
 func _draw_stars(t: float) -> void:
-	for s in _stars:
-		var k := 0.30 + 0.70 * (0.5 + 0.5 * sin(t * s.speed + s.phase))
-		_put(s.x, s.y, _mix(_mix(SKY[2], SKY[3], 0.6), s.color, k))
+	for i in _star_x.size():
+		var sx: int = _star_x[i]
+		var sy: int = _star_y[i]
+		var color: Color = _star_colors[i]
+		var k: float = 0.30 + 0.70 * (0.5 + 0.5 * sin(t * _star_speed[i] + _star_phase[i]))
+		_put(sx, sy, _mix(_mix(SKY[2], SKY[3], 0.6), color, k))
 		if k > 0.88:
-			for d in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
-				_put(s.x + d.x, s.y + d.y, _mix(SKY[3], s.color, 0.28))
+			_put(sx + 1, sy, _mix(SKY[3], color, 0.28))
+			_put(sx - 1, sy, _mix(SKY[3], color, 0.28))
+			_put(sx, sy + 1, _mix(SKY[3], color, 0.28))
+			_put(sx, sy - 1, _mix(SKY[3], color, 0.28))
 
 
 func _draw_shooting_star(t: float) -> void:
@@ -489,19 +498,19 @@ func _draw_camp(t: float) -> void:
 
 func _draw_fire(t: float) -> void:
 	var camp := _camp_xy()
-	var tongues := [
-		{"dx": -4, "h": 8.0, "w": 1.4},
-		{"dx": 0, "h": 12.0, "w": 1.1},
-		{"dx": 4, "h": 7.0, "w": 1.5},
-		{"dx": -7, "h": 5.0, "w": 0.9},
-		{"dx": 7, "h": 4.0, "w": 0.85},
+	var tongues: Array[Vector3] = [
+		Vector3(-4, 8, 1.4),
+		Vector3(0, 12, 1.1),
+		Vector3(4, 7, 1.5),
+		Vector3(-7, 5, 0.9),
+		Vector3(7, 4, 0.85),
 	]
-	for tongue in tongues:
-		var flick := 0.62 + 0.38 * sin(t * (5.5 + absf(tongue.dx) * 0.7) + tongue.dx * 1.9)
-		var h := maxi(1, int(tongue.h * flick))
+	for tongue: Vector3 in tongues:
+		var flick: float = 0.62 + 0.38 * sin(t * (5.5 + absf(tongue.x) * 0.7) + tongue.x * 1.9)
+		var h: int = maxi(1, int(tongue.y * flick))
 		for y in h:
-			var k := float(y) / maxf(1.0, h - 1.0)
-			var half := int((1.0 - k) * tongue.w * 1.5)
+			var k: float = float(y) / maxf(1.0, h - 1.0)
+			var half: int = int((1.0 - k) * tongue.z * 1.5)
 			for x in range(-half, half + 1):
 				var col: Color
 				if k > 0.88:
@@ -512,7 +521,7 @@ func _draw_fire(t: float) -> void:
 					col = FIRE[1]
 				else:
 					col = FIRE[0]
-				_put(camp.x + tongue.dx + x, camp.y - 1 - y, col)
+				_put(camp.x + int(tongue.x) + x, camp.y - 1 - y, col)
 
 
 func _draw_sparks(t: float) -> void:

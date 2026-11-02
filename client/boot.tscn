@@ -10,6 +10,14 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
+[node name="Background" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.031, 0.043, 0.094, 1)
+
 [node name="PixelScene" type="Control" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -24,12 +32,25 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 26
-theme_override_constants/margin_right = 20
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 18
 theme_override_constants/margin_bottom = 20
 
-[node name="Logo" type="TextureRect" parent="Overlay"]
+[node name="Column" type="VBoxContainer" parent="Overlay"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Logo" type="TextureRect" parent="Overlay/Column"]
+custom_minimum_size = Vector2(0, 96)
+layout_mode = 2
+mouse_filter = 2
 texture = ExtResource("3_logo")
 expand_mode = 1
 stretch_mode = 5
+
+[node name="Spacer" type="Control" parent="Overlay/Column"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2

@@ -14,14 +14,15 @@ var _requested := false
 var _main_ready := false
 var _fake_progress := 0.0
 
-@onready var _scene: PixelScene = $PixelScene
+@onready var _scene: Control = $PixelScene
 @onready var _logo: TextureRect = $Overlay/Logo
 
 
 func _ready() -> void:
-	_logo.modulate.a = 0.0
-	var tween := create_tween()
-	tween.tween_property(_logo, "modulate:a", 1.0, 0.6)
+	if _logo != null:
+		_logo.modulate.a = 0.0
+		var tween := create_tween()
+		tween.tween_property(_logo, "modulate:a", 1.0, 0.6)
 
 
 func _process(delta: float) -> void:
@@ -42,9 +43,12 @@ func _process(delta: float) -> void:
 	var shown := _fake_progress
 	if _main_ready and _elapsed >= MIN_SHOW_TIME:
 		shown = 1.0
-	_scene.set_progress(shown)
+	if _scene != null and _scene.has_method("set_progress"):
+		_scene.call("set_progress", shown)
 
-	if shown >= 1.0 and _scene.animation_finished:
+	var animation_done: bool = _scene != null and _scene.get("animation_finished") == true
+	# страховка: если анимация почему-то не отчиталась, не держим игрока вечно
+	if shown >= 1.0 and (animation_done or _elapsed > MIN_SHOW_TIME + 1.5):
 		_go_to_main()
 
 

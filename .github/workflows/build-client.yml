@@ -21,9 +21,44 @@ env:
   GODOT_CHANNEL: "stable"
 
 jobs:
+  smoke:
+    name: Smoke (headless)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Кеш движка
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_CHANNEL }}-linux
+
+      - name: Установить Godot
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot && cd ~/godot
+          if [ ! -x godot ]; then
+            curl -fsSL -o editor.zip \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip"
+            unzip -q editor.zip
+            mv "Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64" godot
+            chmod +x godot
+          fi
+          ./godot --version
+
+      - name: Прогон проекта без окна
+        run: bash .github/ci/smoke_test.sh "$HOME/godot/godot"
+
+      - name: Лог при падении
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/ci/publish-log.sh
+
   apk:
     name: Android APK
     runs-on: ubuntu-latest
+    needs: smoke
     steps:
       - uses: actions/checkout@v4
 
