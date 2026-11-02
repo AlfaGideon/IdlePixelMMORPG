@@ -83,13 +83,23 @@ jobs:
           sed -i "s|__KEYSTORE_ABS__|$GITHUB_WORKSPACE/debug.keystore|g" client/export_presets.cfg
           grep -n "keystore/debug=" client/export_presets.cfg
 
-      - name: Импорт ресурсов и экспорт APK
-        env:
-          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+      - name: Импорт ресурсов
+        run: |
+          set -euo pipefail
+          LOG=/tmp/build-${GITHUB_JOB}.log
+          echo "ANDROID_HOME=$ANDROID_HOME JAVA_HOME=$JAVA_HOME" | tee -a "$LOG"
+          ls "$ANDROID_HOME/build-tools" | tail -3 | tee -a "$LOG" || true
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a "$LOG"
+
+      - name: Настроить пути SDK и JDK для Godot
+        run: |
+          set -euo pipefail
+          python3 .github/ci/configure_godot.py 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
+
+      - name: Экспорт APK
         run: |
           set -euo pipefail
           mkdir -p dist
-          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
           ~/godot/godot --headless --path client --verbose --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
           ls -lh dist/
 
@@ -166,8 +176,9 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist/web
-          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
-          ~/godot/godot --headless --path client --verbose --export-release "Web" ../dist/web/index.html 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
+          LOG=/tmp/build-${GITHUB_JOB}.log
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a "$LOG"
+          ~/godot/godot --headless --path client --export-release "Web" ../dist/web/index.html 2>&1 | tee -a "$LOG"
           ls -lh dist/web
 
       - uses: actions/upload-artifact@v4
