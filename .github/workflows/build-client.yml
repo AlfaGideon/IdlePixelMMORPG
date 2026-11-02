@@ -112,7 +112,7 @@ jobs:
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/ci/publish-log.sh android
+        run: bash .github/ci/publish-log.sh
 
       - name: Опубликовать APK в Release
         env:
@@ -180,4 +180,4 @@ jobs:
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/ci/publish-log.sh web
+        run: bash .github/ci/publish-log.sh

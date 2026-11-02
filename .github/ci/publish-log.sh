@@ -5,7 +5,7 @@
 # Использование: publish-log.sh <android|web>
 set -uo pipefail
 
-JOB="${1:-build}"
+JOB="${1:-${GITHUB_JOB:-build}}"
 LOG="/tmp/build-${JOB}.log"
 
 mkdir -p ci-logs
