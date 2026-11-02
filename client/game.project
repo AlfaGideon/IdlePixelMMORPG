@@ -1,0 +1,37 @@
+[project]
+title = IdlePixelMMORPG
+version = 0.1.0
+
+[display]
+width = 720
+height = 1280
+high_dpi = 1
+dynamic_orientation = 1
+
+[bootstrap]
+main_collection = /main/main.collectionc
+
+[script]
+shared_state = 1
+
+[input]
+game_binding = /input/game.input_bindingc
+use_accelerometer = 0
+
+[render]
+clear_color_red = 0.05
+clear_color_green = 0.06
+clear_color_blue = 0.11
+
+[physics]
+gravity_y = -1000.0
+scale = 0.01
+velocity_threshold = 100.0
+
+[android]
+package = com.idlepixel.mmorpg
+input_method = HiddenInputField
+
+[html5]
+scale_mode = stretch
+show_fullscreen_button = 1

@@ -1,0 +1,65 @@
+-- Адаптивный HUD: пересчитывает раскладку под размер окна, ориентацию и safe area.
+-- Это заготовка будущей layout-библиотеки (docs/PLAN.md §4.3).
+--
+-- Опорная единица — "dp": 1 dp = 1 пиксель при короткой стороне экрана 720.
+-- Координаты GUI при ADJUST_REFERENCE_PARENT заданы в пикселях окна.
+
+local DESIGN_SHORT = 720
+
+local function layout(self)
+	local w, h = window.get_size()
+	local sa = window.get_safe_area()
+	local portrait = h >= w
+	local s = math.max(math.min(sa.width, sa.height) / DESIGN_SHORT, 0.25)
+
+	local cx = sa.x + sa.width * 0.5
+	local top = sa.y + sa.height
+	local bottom = sa.y
+
+	local panel_w = portrait and sa.width * 0.86 or sa.width * 0.62
+	local panel_h = portrait and 260 * s or 200 * s
+	local panel_y = portrait and (top - 250 * s) or (top - 170 * s)
+
+	gui.set_position(self.panel, vmath.vector3(cx, panel_y, 0))
+	gui.set_size(self.panel, vmath.vector3(panel_w, panel_h, 0))
+
+	gui.set_position(self.title, vmath.vector3(cx, panel_y + 40 * s, 0.1))
+	gui.set_scale(self.title, vmath.vector3(s, s, 1))
+
+	gui.set_position(self.subtitle, vmath.vector3(cx, panel_y - 32 * s, 0.1))
+	gui.set_scale(self.subtitle, vmath.vector3(s, s, 1))
+
+	gui.set_position(self.status, vmath.vector3(cx, bottom + 96 * s, 0.1))
+	gui.set_scale(self.status, vmath.vector3(s, s, 1))
+
+	gui.set_position(self.hint, vmath.vector3(cx, bottom + 48 * s, 0.1))
+	gui.set_scale(self.hint, vmath.vector3(s, s, 1))
+
+	gui.set_text(self.status, string.format("%s · %d×%d · safe %d,%d %d×%d",
+		portrait and "портрет" or "ландшафт",
+		w, h, sa.x, sa.y, sa.width, sa.height))
+
+	print(string.format("[hud] %s %dx%d scale=%.2f safe=%d,%d %dx%d",
+		portrait and "portrait" or "landscape", w, h, s,
+		sa.x, sa.y, sa.width, sa.height))
+end
+
+function init(self)
+	self.panel = gui.get_node("panel")
+	self.title = gui.get_node("title")
+	self.subtitle = gui.get_node("subtitle")
+	self.status = gui.get_node("status")
+	self.hint = gui.get_node("hint")
+
+	window.set_listener(function(_, event, data)
+		if event == window.WINDOW_EVENT_RESIZED then
+			layout(self)
+		end
+	end)
+
+	layout(self)
+end
+
+function final(self)
+	window.set_listener(nil)
+end

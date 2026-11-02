@@ -1,0 +1,22 @@
+-- Точка входа клиента IdlePixelMMORPG.
+-- Здесь позже появится роутинг экранов и сетевое подключение (см. docs/PLAN.md §4).
+
+function init(self)
+	msg.post(".", "acquire_input_focus")
+	self.touches = 0
+	print("[main] init")
+end
+
+function on_input(self, action_id, action)
+	if action_id == hash("touch") and action.pressed then
+		self.touches = self.touches + 1
+		print(string.format("[main] touch #%d at %.0f, %.0f", self.touches, action.x, action.y))
+	end
+end
+
+function on_message(self, message_id, message, sender)
+end
+
+function final(self)
+	print("[main] final")
+end
