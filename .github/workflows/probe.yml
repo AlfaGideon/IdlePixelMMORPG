@@ -1,7 +1,14 @@
 name: probe
-on: [workflow_dispatch]
+on:
+  push:
+    branches: [arena/1ac1f842-idlepixelmmorpg]
 jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - run: echo ok
+      - run: echo "actions alive"
+      - run: echo "artifact test" > out.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: probe-artifact
+          path: out.txt
