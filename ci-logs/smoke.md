@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: e492dbf82aeb711c8df23b82c39161134a4b61e9
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41503890353
+- коммит: 3dcca3e15a454e34c32099fb03b508beb96ddc93
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41504011095
 
 ```
 ===== import =====
@@ -61,6 +61,13 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
 pixel_scene: палитра 5 цветов, звёзд 96
 pixel_scene: первый кадр, сетка 120x214
+ERROR: Node not found: "Overlay/Logo" (relative to "/root/Boot").
+   at: get_node (scene/main/node.cpp:1975)
+   GDScript backtrace (most recent call first):
+       [0] @implicit_ready (res://scripts/boot.gd:18)
+boot: старт, сцена=true, размер=(1280.0, 1280.0)
+WARNING: 1 ObjectDB instance was leaked at exit (run with `--verbose` for details).
+   at: cleanup (core/object/object.cpp:2536)
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
