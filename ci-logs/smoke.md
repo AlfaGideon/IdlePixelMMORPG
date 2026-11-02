@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 73ebf652a7bc0a3eb3ed495d83a67a55f56408d8
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41503546456
+- коммит: e492dbf82aeb711c8df23b82c39161134a4b61e9
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41503890353
 
 ```
 ===== import =====
@@ -58,6 +58,9 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 cannot connect to daemon at tcp:5037: Connection refused
 ===== run =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+pixel_scene: палитра 5 цветов, звёзд 96
+pixel_scene: первый кадр, сетка 120x214
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
