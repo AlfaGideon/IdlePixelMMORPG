@@ -1,0 +1,164 @@
+name: build-client
+
+# Собирает клиент Godot в CI: APK для Android и web-билд.
+# Артефакты Actions из некоторых окружений не скачиваются, поэтому APK публикуется
+# ещё и в GitHub Release — оттуда его можно поставить на телефон по прямой ссылке.
+
+on:
+  push:
+    branches:
+      - "arena/**"
+    paths:
+      - "client/**"
+      - ".github/workflows/build-client.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+env:
+  GODOT_VERSION: "4.7.2"
+  GODOT_CHANNEL: "stable"
+
+jobs:
+  apk:
+    name: Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Кеш движка и шаблонов
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_CHANNEL }}-linux
+
+      - name: Установить Godot и экспорт-шаблоны
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot && cd ~/godot
+          if [ ! -x godot ]; then
+            curl -fsSL -o editor.zip \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip"
+            unzip -q editor.zip
+            mv "Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64" godot
+            chmod +x godot
+          fi
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}"
+          if [ ! -f "$TEMPLATE_DIR/android_debug.apk" ]; then
+            curl -fsSL -o templates.tpz \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz"
+            mkdir -p "$TEMPLATE_DIR"
+            unzip -q -o templates.tpz -d "$HOME/.local/share/godot/export_templates_tmp"
+            mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
+          fi
+          ls -1 "$TEMPLATE_DIR" | head -5
+          ./godot --version
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Android SDK
+        run: |
+          yes | sdkmanager --licenses > /dev/null || true
+          sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-35"
+
+      - name: Debug keystore
+        run: |
+          keytool -keyalg RSA -genkeypair -alias androiddebugkey \
+            -keypass android -keystore "$GITHUB_WORKSPACE/debug.keystore" \
+            -storepass android -dname "CN=Android Debug,O=Android,C=US" \
+            -validity 9999 -deststoretype pkcs12
+
+      - name: Подставить путь к keystore в пресет
+        run: |
+          sed -i "s|__KEYSTORE_ABS__|$GITHUB_WORKSPACE/debug.keystore|g" client/export_presets.cfg
+          grep -n "keystore/debug=" client/export_presets.cfg
+
+      - name: Импорт ресурсов и экспорт APK
+        env:
+          ANDROID_HOME: ${{ env.ANDROID_SDK_ROOT }}
+        run: |
+          set -euo pipefail
+          mkdir -p dist
+          ~/godot/godot --headless --path client --import || true
+          ~/godot/godot --headless --path client --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk
+          ls -lh dist/
+
+      - name: Проверить, что APK валиден
+        run: |
+          set -euo pipefail
+          APK=dist/IdlePixelMMORPG-debug.apk
+          test -f "$APK"
+          unzip -l "$APK" | grep -q "AndroidManifest.xml"
+          unzip -l "$APK" | grep -q "libgodot_android.so"
+          echo "APK OK: $(du -h "$APK" | cut -f1)"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IdlePixelMMORPG-debug-apk
+          path: dist/IdlePixelMMORPG-debug.apk
+          if-no-files-found: error
+
+      - name: Опубликовать APK в Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TAG="apk-${GITHUB_RUN_NUMBER}"
+          gh release create "$TAG" dist/IdlePixelMMORPG-debug.apk \
+            --title "Тестовая сборка APK #${GITHUB_RUN_NUMBER}" \
+            --notes "Автоматическая debug-сборка из ветки ${GITHUB_REF_NAME}, коммит ${GITHUB_SHA:0:7}. Проект на стадии скелета: экран проверяет раскладку портрет/ландшафт." \
+            --prerelease
+          echo "Release: ${{ github.server_url }}/${{ github.repository }}/releases/tag/${TAG}"
+
+  web:
+    name: Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Кеш движка и шаблонов
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}-${{ env.GODOT_CHANNEL }}-linux
+
+      - name: Установить Godot и экспорт-шаблоны
+        run: |
+          set -euo pipefail
+          mkdir -p ~/godot && cd ~/godot
+          if [ ! -x godot ]; then
+            curl -fsSL -o editor.zip \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64.zip"
+            unzip -q editor.zip
+            mv "Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_linux.x86_64" godot
+            chmod +x godot
+          fi
+          TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}"
+          if [ ! -f "$TEMPLATE_DIR/web_release.zip" ]; then
+            curl -fsSL -o templates.tpz \
+              "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz"
+            mkdir -p "$TEMPLATE_DIR"
+            unzip -q -o templates.tpz -d "$HOME/.local/share/godot/export_templates_tmp"
+            mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
+          fi
+          ./godot --version
+
+      - name: Экспорт web
+        run: |
+          set -euo pipefail
+          mkdir -p dist/web
+          ~/godot/godot --headless --path client --import || true
+          ~/godot/godot --headless --path client --export-release "Web" ../dist/web/index.html
+          ls -lh dist/web
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: IdlePixelMMORPG-web
+          path: dist/web
+          if-no-files-found: error
