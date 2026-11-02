@@ -265,7 +265,7 @@ func _put(x: int, y: int, color: Color) -> void:
 	_image.set_pixel(x, y, color)
 
 
-func _get(x: int, y: int) -> Color:
+func _at(x: int, y: int) -> Color:
 	if x < 0 or y < 0 or x >= GRID_WIDTH or y >= GRID_HEIGHT:
 		return GROUND
 	return _image.get_pixel(x, y)
@@ -280,12 +280,13 @@ func _rect(x0: int, y0: int, x1: int, y1: int, color: Color) -> void:
 func _gradient(y0: int, y1: int, colors: Array) -> void:
 	var steps := colors.size() - 1
 	for y in range(y0, y1):
-		var k := float(y - y0) / max(1, y1 - y0 - 1) * steps
+		var k: float = float(y - y0) / float(maxi(1, y1 - y0 - 1)) * float(steps)
 		var lo := mini(steps - 1, int(k))
-		var frac := k - lo
+		var frac: float = k - float(lo)
 		for x in GRID_WIDTH:
-			var threshold := (BAYER[y % 4][x % 4] + 0.5) / 16.0
-			_put(x, y, colors[lo] if frac <= threshold else colors[lo + 1])
+			var threshold: float = (float(BAYER[y % 4][x % 4]) + 0.5) / 16.0
+			var c: Color = colors[lo] if frac <= threshold else colors[lo + 1]
+			_put(x, y, c)
 
 
 # --- отрисовка кадра -----------------------------------------------------
@@ -331,9 +332,9 @@ func _draw_moon() -> void:
 				continue
 			if dx * 0.80 + dy * 0.45 > 0.74:
 				_put(x, y, MOON_SHADE)
-	for crater in [Vector3(-0.30, -0.16, 0.22), Vector3(0.16, 0.30, 0.16)]:
-		var pcx := cx + crater.x * r
-		var pcy := cy + crater.y * r
+	for crater: Vector3 in [Vector3(-0.30, -0.16, 0.22), Vector3(0.16, 0.30, 0.16)]:
+		var pcx: float = float(cx) + crater.x * r
+		var pcy: float = float(cy) + crater.y * r
 		var pr := maxf(1.0, crater.z * r)
 		for y in range(int(pcy - pr) - 1, int(pcy + pr) + 2):
 			for x in range(int(pcx - pr) - 1, int(pcx + pr) + 2):
@@ -404,7 +405,7 @@ func _draw_treeline() -> void:
 func _draw_ground() -> void:
 	var gl := _ground_line()
 	for y in range(gl, GRID_HEIGHT):
-		var k := float(y - gl) / max(1, GRID_HEIGHT - gl)
+		var k: float = float(y - gl) / float(maxi(1, GRID_HEIGHT - gl))
 		for x in GRID_WIDTH:
 			_put(x, y, _mix(GROUND, Color8(6, 8, 18), k * 0.75))
 	for x in GRID_WIDTH:
@@ -437,7 +438,7 @@ func _draw_camp_light(t: float) -> void:
 				band = 0.26
 			if band <= 0.0:
 				continue
-			_put(x, y, _mix(_get(x, y), Color8(146, 84, 40), band))
+			_put(x, y, _mix(_at(x, y), Color8(146, 84, 40), band))
 
 
 func _draw_camp(t: float) -> void:
@@ -553,14 +554,14 @@ func _draw_bar(t: float) -> void:
 	_rect(bar.position.x - 2, bar.position.y - 2, bar.end.x + 1, bar.end.y + 1, BAR_EDGE_DARK)
 	_rect(bar.position.x - 1, bar.position.y - 1, bar.end.x, bar.end.y, BAR_EDGE)
 	for yy in range(bar.position.y, bar.end.y):
-		var k := float(yy - bar.position.y) / max(1, bar.size.y - 1)
+		var k: float = float(yy - bar.position.y) / float(maxi(1, bar.size.y - 1))
 		_rect(bar.position.x, yy, bar.end.x - 1, yy, _mix(BAR_TROUGH_HI, BAR_TROUGH, k))
 
 	var fill_w := int((bar.size.x - 2) * clampf(progress, 0.0, 1.0))
 	for i in fill_w:
-		var base := _mix(FILL_A, FILL_B, float(i) / max(1, bar.size.x - 3))
+		var base: Color = _mix(FILL_A, FILL_B, float(i) / float(maxi(1, bar.size.x - 3)))
 		for yy in range(bar.position.y + 1, bar.end.y - 1):
-			var v := float(yy - bar.position.y - 1) / max(1, bar.size.y - 3)
+			var v: float = float(yy - bar.position.y - 1) / float(maxi(1, bar.size.y - 3))
 			_put(bar.position.x + 1 + i, yy, _mix(base, Color.WHITE, 0.20 * pow(1.0 - v, 2)))
 	if fill_w > 8:
 		var phase := int(fmod(t * 34.0, fill_w + 16.0)) - 8
@@ -632,7 +633,7 @@ func _draw_vignette() -> void:
 			var d := minf(1.0, pow(dx * dx * 0.55 + dy * dy * 0.45, 1.4))
 			if d < 0.6:
 				continue
-			_put(x, y, _mix(_get(x, y), Color8(2, 3, 7), (d - 0.6) / 0.4 * 0.5))
+			_put(x, y, _mix(_at(x, y), Color8(2, 3, 7), (d - 0.6) / 0.4 * 0.5))
 
 
 # --- отрисовка на экране -------------------------------------------------
