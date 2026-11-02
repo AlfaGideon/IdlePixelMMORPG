@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: e7993c7d9f95c1a560ecd4af6d2013fb134f7015
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41504387553
+- коммит: 52de45bbed72b3c5597fd77a7ee66babbc583a2a
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41504507396
 
 ```
 ===== import =====
@@ -62,8 +62,7 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 pixel_scene: палитра 5 цветов, звёзд 96
 pixel_scene: первый кадр, сетка 120x214
 boot: старт, сцена=true, размер=(1280.0, 1280.0)
-WARNING: 1 ObjectDB instance was leaked at exit (run with `--verbose` for details).
-   at: cleanup (core/object/object.cpp:2536)
+pixel_scene: снимок кадра -> res://boot_capture.png (0)
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
