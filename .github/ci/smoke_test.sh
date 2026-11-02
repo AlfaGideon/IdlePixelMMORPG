@@ -44,6 +44,16 @@ for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/kit.gd; 
   run_check "check $script" timeout 60 "$GODOT" --headless --path "$PROJECT" --check-only --script "res://${script#client/}"
 done
 
+# 4. Сцена должна реально стартовать и нарисовать кадр
+for marker in "boot: старт" "pixel_scene: первый кадр"; do
+  if grep -q "$marker" "$LOG"; then
+    echo "OK: $marker"
+  else
+    echo "FAIL: нет отметки «$marker»" | tee -a "$LOG"
+    FAIL=1
+  fi
+done
+
 if [ "$FAIL" -ne 0 ]; then
   echo "SMOKE FAILED" | tee -a "$LOG"
   exit 1
