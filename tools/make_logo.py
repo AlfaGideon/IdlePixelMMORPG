@@ -99,13 +99,33 @@ def icon(src: Image.Image) -> Image.Image:
     return crop.convert("RGBA")
 
 
-def compose_preview(logo: Image.Image, height: int, name: str) -> None:
-    screen = Image.open(PREVIEW / "engine_capture.png").convert("RGB")
-    screen = screen.resize((720, 1280), Image.NEAREST)
-    lw = round(logo.width * height / logo.height)
-    lg = logo.resize((lw, height), Image.LANCZOS)
-    screen.paste(lg, ((720 - lw) // 2, 24), lg)
-    screen.save(PREVIEW / name)
+def compose_preview(logo: Image.Image, name: str = "boot_compose.png") -> None:
+    """Как выглядит загрузочный экран: сцена 720×1280 + табличка с логотипом."""
+    from PIL import ImageDraw
+
+    screen = Image.open(PREVIEW / "engine_capture.png").convert("RGB").resize((720, 1280), Image.NEAREST)
+    layer = Image.new("RGBA", (720, 1280), (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+
+    # параметры должны совпадать с client/boot.tscn
+    margin_x, margin_top = 18, 22
+    panel_w, panel_h = 352, 132
+    pad = 10
+    px = (720 - panel_w) // 2
+    py = margin_top
+
+    d.rounded_rectangle([px, py, px + panel_w, py + panel_h], radius=14,
+                        fill=(11, 16, 38, 214), outline=(64, 92, 136, 255), width=2)
+    inner_w, inner_h = panel_w - pad * 2, panel_h - pad * 2
+    lw = inner_w
+    lh = round(logo.height * lw / logo.width)
+    if lh > inner_h:
+        lh = inner_h
+        lw = round(logo.width * lh / logo.height)
+    lg = logo.resize((lw, lh), Image.LANCZOS)
+    screen = Image.alpha_composite(screen.convert("RGBA"), layer)
+    screen.paste(lg, (px + (panel_w - lw) // 2, py + (panel_h - lh) // 2), lg)
+    screen.convert("RGB").save(PREVIEW / name)
 
 
 def main() -> None:
@@ -120,8 +140,7 @@ def main() -> None:
     icon(src).save(ART / "icon.png", optimize=True)
 
     if (PREVIEW / "engine_capture.png").exists():
-        compose_preview(logo, 110, "boot_compose_110.png")
-        compose_preview(logo, 150, "boot_compose_150.png")
+        compose_preview(logo)
 
     print(f"logo.png {logo.width}×{logo.height}, logo-square.png 768×768, icon.png 512×512")
 

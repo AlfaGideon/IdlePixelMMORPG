@@ -48,12 +48,6 @@ const BAR_EDGE_DARK := Color8(26, 33, 52)
 const FILL_A := Color8(92, 226, 146)
 const FILL_B := Color8(52, 178, 166)
 const FILL_HI := Color8(198, 255, 216)
-const CLOAK := Color8(44, 164, 116)
-const CLOAK_DARK := Color8(26, 104, 78)
-const CLOAK_LIT := Color8(120, 226, 172)
-const SKIN := Color8(233, 191, 150)
-const SKIN_SHADE := Color8(188, 140, 104)
-const BOOT_HI := Color8(74, 82, 104)
 const OUTLINE := Color8(4, 6, 10)
 const DUST := Color8(96, 124, 164)
 
@@ -65,72 +59,11 @@ const BAYER := [
 ]
 
 # --- спрайты -------------------------------------------------------------
-const RUNNER_FRAMES := [
-	[
-		"...DDDD.....",
-		"..DDDDDD....",
-		"..DDSSDD....",
-		"..DDSSDD....",
-		"...DDDD.....",
-		"..CCCCCC....",
-		".CCCCCCCC...",
-		".CCCCCCCCL..",
-		".CCCCCCCCL..",
-		"..CCCCCCC...",
-		"..CCCCCC....",
-		"..CC..CC....",
-		".BBB..BBB...",
-		".BB....BB...",
-	],
-	[
-		"...DDDD.....",
-		"..DDDDDD....",
-		"..DDSSDD....",
-		"..DDSSDD....",
-		"...DDDD.....",
-		"..CCCCCC....",
-		".CCCCCCCC...",
-		".CCCCCCCCL..",
-		".CCCCCCCCL..",
-		"..CCCCCCC...",
-		"..CCCCCC....",
-		"...CCCC.....",
-		"...BBBB.....",
-		"..BB..BB....",
-	],
-	[
-		"...DDDD.....",
-		"..DDDDDD....",
-		"..DDSSDD....",
-		"..DDSSDD....",
-		"...DDDD.....",
-		"..CCCCCC....",
-		".CCCCCCCC...",
-		"LCCCCCCCC...",
-		"LCCCCCCCC...",
-		"..CCCCCCC...",
-		"..CCCCCC....",
-		"..CC..CC....",
-		".BBB..BBB...",
-		"..BB..BB....",
-	],
-	[
-		"...DDDD.....",
-		"..DDDDDD....",
-		"..DDSSDD....",
-		"..DDSSDD....",
-		"...DDDD.....",
-		"..CCCCCC....",
-		".CCCCCCCC...",
-		".CCCCCCCCL..",
-		".CCCCCCCCL..",
-		"..CCCCCCC...",
-		"..CCCCCC....",
-		"..CC.CC.....",
-		".BBB.BBB....",
-		".BB...BB....",
-	],
-]
+
+const RUNNER_SHEET: Texture2D = preload("res://art/runner.png")
+const RUNNER_W := 20
+const RUNNER_H := 24
+const RUNNER_FRAMES := 6
 
 const GUARD_FRAME := [
 	"..####..",
@@ -163,6 +96,7 @@ var _star_y: PackedInt32Array = PackedInt32Array()
 var _star_colors: Array[Color] = []
 var _star_phase: PackedFloat32Array = PackedFloat32Array()
 var _star_speed: PackedFloat32Array = PackedFloat32Array()
+var _runner_frames: Array[Image] = []
 var _time := 0.0
 var _done_at := -1.0
 var _frame := 0
@@ -180,6 +114,7 @@ func _ready() -> void:
 	_image = Image.create_empty(GRID_WIDTH, GRID_HEIGHT, false, Image.FORMAT_RGB8)
 	_texture = ImageTexture.create_from_image(_image)
 	_generate_stars()
+	_load_runner()
 	print("pixel_scene: палитра %d цветов, звёзд %d" % [SKY.size(), _star_x.size()])
 	_render(0.0)
 
@@ -196,6 +131,17 @@ func _generate_stars() -> void:
 		_star_colors.append(STAR[i % STAR.size()])
 		_star_phase.append(_hash01(i, 4.1) * TAU)
 		_star_speed.append(0.5 + _hash01(i, 5.9) * 2.2)
+
+
+func _load_runner() -> void:
+	var sheet: Image = RUNNER_SHEET.get_image()
+	if sheet == null:
+		push_error("pixel_scene: не удалось прочитать res://art/runner.png")
+		return
+	sheet.convert(Image.FORMAT_RGBA8)
+	for i in RUNNER_FRAMES:
+		_runner_frames.append(sheet.get_region(Rect2i(i * RUNNER_W, 0, RUNNER_W, RUNNER_H)))
+	print("pixel_scene: спрайт героя %d кадров %dx%d" % [_runner_frames.size(), RUNNER_W, RUNNER_H])
 
 
 func _process(delta: float) -> void:
@@ -586,50 +532,22 @@ func _draw_runner(t: float) -> void:
 	var bar := _bar_rect()
 	var fill_w := int((bar.size.x - 2) * clampf(progress, 0.0, 1.0))
 	var moving := progress < 0.999
-	var frame := int(t * 9.0) % 4 if moving else 0
-	var sprite: Array = RUNNER_FRAMES[frame]
-	var sw: int = sprite[0].length()
-	var sh: int = sprite.size()
-	var bob := 1 if (moving and (frame == 0 or frame == 2)) else 0
+	# 12 кадров в секунду: цикл бега целиком проходится за 0.5 с
+	var index := int(t * 12.0) % RUNNER_FRAMES if moving else 0
 	# не даём герою выйти за полоску и за экран на финише
-	var px0 := clampi(bar.position.x + 1 + fill_w - sw / 2, 2, GRID_WIDTH - sw - 2)
-	var py0 := bar.position.y - sh + 2 + bob
+	var px0 := clampi(bar.position.x + 1 + fill_w - RUNNER_W / 2, 2, GRID_WIDTH - RUNNER_W - 2)
+	var py0 := bar.position.y - RUNNER_H + 3
 
-	for i in 3:
-		var k := _hash01(int(t * 9.0) + i, 23.1)
-		_put(px0 - 2 - i * 2 - int(k * 3.0), bar.position.y - 1 - int(k * 2.0),
-			_mix(GROUND, DUST, 0.45 - i * 0.1))
+	# пыль из-под ног
+	for i in 4:
+		var k := _hash01(int(t * 12.0) + i, 23.1)
+		_put(px0 - 1 - i * 2 - int(k * 3.0), bar.position.y - int(k * 2.0),
+			_mix(GROUND, DUST, 0.5 - i * 0.1))
 
-	# обводка, чтобы силуэт отделялся от земли
-	for j in sh:
-		var row: String = sprite[j]
-		for i in row.length():
-			if row[i] == ".":
-				continue
-			_put(px0 + i, py0 + j - 1, OUTLINE)
-			_put(px0 + i, py0 + j + 1, OUTLINE)
-			_put(px0 + i - 1, py0 + j, OUTLINE)
-			_put(px0 + i + 1, py0 + j, OUTLINE)
-
-	for j in sh:
-		var row: String = sprite[j]
-		for i in row.length():
-			var ch := row[i]
-			if ch == ".":
-				continue
-			var col: Color
-			match ch:
-				"D":
-					col = CLOAK_DARK
-				"S":
-					col = SKIN
-				"C":
-					col = CLOAK_LIT if i <= 4 else CLOAK
-				"L":
-					col = SKIN_SHADE
-				_:
-					col = BOOT_HI
-			_put(px0 + i, py0 + j, col)
+	if _runner_frames.is_empty():
+		return
+	var sprite: Image = _runner_frames[mini(index, _runner_frames.size() - 1)]
+	_image.blend_rect(sprite, Rect2i(0, 0, RUNNER_W, RUNNER_H), Vector2i(px0, py0))
 
 
 func _draw_vignette() -> void:
