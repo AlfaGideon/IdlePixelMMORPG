@@ -314,6 +314,7 @@ func _render(t: float) -> void:
 	_draw_bar(t)
 	_draw_runner(t)
 	_draw_vignette()
+	_maybe_capture()
 
 
 func _draw_sky() -> void:
@@ -644,6 +645,14 @@ func _draw_vignette() -> void:
 
 
 # --- отрисовка на экране -------------------------------------------------
+
+func _maybe_capture() -> void:
+	if OS.get_environment("BOOT_CAPTURE") != "1" or _diag_frames != 45:
+		return
+	var path := "res://boot_capture.png"
+	var err := _image.save_png(path)
+	print("pixel_scene: снимок кадра -> %s (%d)" % [path, err])
+
 
 func _draw() -> void:
 	if _texture == null:
