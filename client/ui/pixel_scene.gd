@@ -647,7 +647,7 @@ func _draw_vignette() -> void:
 # --- отрисовка на экране -------------------------------------------------
 
 func _maybe_capture() -> void:
-	if OS.get_environment("BOOT_CAPTURE") != "1" or _diag_frames != 60:
+	if OS.get_environment("BOOT_CAPTURE") != "1" or _diag_frames != 45:
 		return
 	var path := "res://boot_capture.png"
 	var err := _image.save_png(path)

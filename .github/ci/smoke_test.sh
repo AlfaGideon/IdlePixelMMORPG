@@ -38,7 +38,7 @@ run_check "import" timeout 180 "$GODOT" --headless --path "$PROJECT" --import
 
 # 2. Реальная загрузка проекта: 120 кадров, затем выход
 export BOOT_CAPTURE=1
-run_check "run" timeout 120 "$GODOT" --headless --path "$PROJECT" --quit-after 150
+run_check "run" timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 150
 unset BOOT_CAPTURE
 
 # 3. Отдельно проверим, что скрипты компилируются (--check-only)
