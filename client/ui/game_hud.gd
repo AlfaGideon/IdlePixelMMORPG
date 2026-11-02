@@ -273,6 +273,28 @@ func _text_shadow(s: String, x: int, y: int, c: Color) -> void:
 	PixelFont.draw(_image, s, x, y, c)
 
 
+func _text_tiny(s: String, x: int, y: int, c: Color) -> void:
+	# сжатый по горизонтали шрифт: каждый второй столбец глифа
+	var cursor := x
+	var upper := s.to_upper()
+	for i in upper.length():
+		var glyph: Array = PixelFont.GLYPHS.get(upper[i], [])
+		for row in glyph.size():
+			var line: String = glyph[row]
+			for col in range(0, line.length(), 2):
+				if line[col] == "#":
+					_px(cursor + col / 2, y + row, c)
+		cursor += 3
+
+
+func _text_tiny_width(s: String) -> int:
+	return maxi(0, s.length() * 3 - 1)
+
+
+func _text_tiny_center(s: String, cx: int, y: int, c: Color) -> void:
+	_text_tiny(s, cx - _text_tiny_width(s) / 2, y, c)
+
+
 func _text_center(s: String, cx: int, y: int, c: Color) -> void:
 	_text_shadow(s, cx - PixelFont.width(s) / 2, y, c)
 
@@ -623,8 +645,13 @@ func _draw_footer() -> void:
 			for k in range(3, r.size.x - 3):
 				_px(r.position.x + k, r.position.y + r.size.y - 2, GOLD)
 		_draw_tab_icon(i, r.position.x + r.size.x / 2, r.position.y + 7, active)
-		_text_center(TABS[i], r.position.x + r.size.x / 2, r.position.y + r.size.y - 11,
-			GOLD if active else TEXT_DIM)
+		var label: String = TABS[i]
+		if PixelFont.width(label) > r.size.x - 5:
+			_text_tiny_center(label, r.position.x + r.size.x / 2, r.position.y + r.size.y - 10,
+				GOLD if active else TEXT_DIM)
+		else:
+			_text_center(label, r.position.x + r.size.x / 2, r.position.y + r.size.y - 11,
+				GOLD if active else TEXT_DIM)
 
 
 func _draw_tab_icon(i: int, cx: int, y: int, active: bool) -> void:
