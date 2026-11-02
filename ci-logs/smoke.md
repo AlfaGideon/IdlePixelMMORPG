@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 89428f435f35c4228a2c48efb696a887db4df342
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41508033068
+- коммит: 23a7c2d1e96b35cc75905dce1b912f2966e0fbad
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41508177811
 
 ```
 ===== import =====
