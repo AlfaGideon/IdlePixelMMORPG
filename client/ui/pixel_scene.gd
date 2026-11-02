@@ -111,7 +111,7 @@ func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 
-	_image = Image.create_empty(GRID_WIDTH, GRID_HEIGHT, false, Image.FORMAT_RGB8)
+	_image = Image.create_empty(GRID_WIDTH, GRID_HEIGHT, false, Image.FORMAT_RGBA8)
 	_texture = ImageTexture.create_from_image(_image)
 	_generate_stars()
 	_load_runner()
@@ -205,7 +205,8 @@ func _mix(a: Color, b: Color, k: float) -> Color:
 func _put(x: int, y: int, color: Color) -> void:
 	if x < 0 or y < 0 or x >= GRID_WIDTH or y >= GRID_HEIGHT:
 		return
-	_image.set_pixel(x, y, color)
+	# буфер RGBA, чтобы в него можно было накладывать спрайт с прозрачностью
+	_image.set_pixel(x, y, Color(color.r, color.g, color.b, 1.0))
 
 
 func _at(x: int, y: int) -> Color:

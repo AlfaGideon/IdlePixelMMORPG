@@ -18,7 +18,8 @@ mkdir -p /tmp/smoke
 
 run_check() {
   local name="$1"
-  shift
+  local strict="$2"
+  shift 2
   local out
   out=$("$@" 2>&1)
   echo "===== $name =====" | tee -a "$LOG"
@@ -34,18 +35,18 @@ run_check() {
 }
 
 # 1. Импорт ресурсов (создаёт .godot/ и .import)
-run_check "import" timeout 180 "$GODOT" --headless --path "$PROJECT" --import
+run_check "import" 0 timeout 180 "$GODOT" --headless --path "$PROJECT" --import
 
 # 2. Реальная загрузка проекта: 120 кадров, затем выход
 export BOOT_CAPTURE=1
 export BOOT_CAPTURE_PATH="$PWD/client/boot_capture.png"
-run_check "run" timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 150
+run_check "run" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 150
 unset BOOT_CAPTURE
 unset BOOT_CAPTURE_PATH
 
 # 3. Отдельно проверим, что скрипты компилируются (--check-only)
 for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/kit.gd; do
-  run_check "check $script" timeout 60 "$GODOT" --headless --path "$PROJECT" --check-only --script "res://${script#client/}"
+  run_check "check $script" 1 timeout 60 "$GODOT" --headless --path "$PROJECT" --check-only --script "res://${script#client/}"
 done
 
 # 4. Сцена должна реально стартовать и нарисовать кадр
