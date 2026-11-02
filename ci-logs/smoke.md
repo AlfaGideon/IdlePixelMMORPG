@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 52de45bbed72b3c5597fd77a7ee66babbc583a2a
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41504507396
+- коммит: 6cc14bd6857f9dfef71ea61ab4e2df551059c98a
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41504749339
 
 ```
 ===== import =====
@@ -55,19 +55,33 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  16% ] [90m[1mloading_editor_layout[22m | Loading docks...[39m[0m
 [92m[ DONE ][39m [1mloading_editor_layout[22m
 [0m
+SCRIPT ERROR: Parse Error: Identifier "TREE_TIP" not declared in the current scope.
+          at: GDScript::reload (res://ui/pixel_scene.gd:401)
+ERROR: Failed to load script "res://ui/pixel_scene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 cannot connect to daemon at tcp:5037: Connection refused
+FAIL: import
 ===== run =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
-pixel_scene: палитра 5 цветов, звёзд 96
-pixel_scene: первый кадр, сетка 120x214
+SCRIPT ERROR: Parse Error: Identifier "TREE_TIP" not declared in the current scope.
+          at: GDScript::reload (res://ui/pixel_scene.gd:401)
+ERROR: Failed to load script "res://ui/pixel_scene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 boot: старт, сцена=true, размер=(1280.0, 1280.0)
-pixel_scene: снимок кадра -> res://boot_capture.png (0)
+FAIL: run
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
+
+SCRIPT ERROR: Parse Error: Identifier "TREE_TIP" not declared in the current scope.
+          at: GDScript::reload (res://ui/pixel_scene.gd:401)
+ERROR: Failed to load script "res://ui/pixel_scene.gd" with error "Parse error".
+   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
+FAIL: check client/ui/pixel_scene.gd
 ===== check client/ui/kit.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
-SMOKE OK
+FAIL: нет отметки «pixel_scene: первый кадр»
+SMOKE FAILED
 ```
