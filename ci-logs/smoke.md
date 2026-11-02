@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 93c2e541e24772ab509f870f502a662932f7e8e3
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41512993345
+- коммит: 6c8ed9be602de5746bdb11533e354bd573825aaf
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41543694408
 
 ```
 ===== import =====
@@ -17,10 +17,12 @@ Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 [  83% ] [90m[1mfirst_scan_filesystem[22m | Starting file scan...[39m[0m
 [92m[ DONE ][39m [1mfirst_scan_filesystem[22m
 [0m
-[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (3 steps)[39m[0m
+[   0% ] [90m[1mupdate_scripts_classes[22m | Started Registering global classes... (5 steps)[39m[0m
 [   0% ] [90m[1mupdate_scripts_classes[22m | [39m[0m
-[  25% ] [90m[1mupdate_scripts_classes[22m | UIKit[39m[0m
-[  50% ] [90m[1mupdate_scripts_classes[22m | PixelScene[39m[0m
+[  16% ] [90m[1mupdate_scripts_classes[22m | GameHud[39m[0m
+[  33% ] [90m[1mupdate_scripts_classes[22m | UIKit[39m[0m
+[  50% ] [90m[1mupdate_scripts_classes[22m | PixelFont[39m[0m
+[  66% ] [90m[1mupdate_scripts_classes[22m | PixelScene[39m[0m
 [92m[ DONE ][39m [1mupdate_scripts_classes[22m
 [0m
 [   0% ] [90m[1m_update_scan_actions[22m | Started Scanning actions... (6 steps)[39m[0m
@@ -69,6 +71,7 @@ boot: старт, сцена=true, размер=(1280.0, 1280.0)
 pixel_scene: снимок 0 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture.png (0)
 pixel_scene: снимок 1 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_1.png (0)
 pixel_scene: снимок 2 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_2.png (0)
+game_hud: снимок интерфейса -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/game_capture.png (0)
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
