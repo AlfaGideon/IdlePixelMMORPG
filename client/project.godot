@@ -8,16 +8,24 @@ config_version=5
 
 config/name="IdlePixelMMORPG"
 config/description="Idle-RPG: боевые классы, монстры и уровни, общий мир, аукцион."
-run/main_scene="res://main.tscn"
+run/main_scene="res://boot.tscn"
 config/features=PackedStringArray("4.7")
-config/icon="res://icon.svg"
+config/icon="res://art/icon.png"
+
+[boot_splash]
+
+show_image=false
+bg_color=Color(0.031, 0.043, 0.094, 1)
+fullsize=false
+minimum_display_time=0
+use_filter=false
 
 [display]
 
 window/size/viewport_width=720
 window/size/viewport_height=1280
-window/size/window_width_override=405
-window/size/window_height_override=720
+window/size/window_width_override=360
+window/size/window_height_override=640
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 ; 6 = SCREEN_SENSOR: и портрет, и ландшафт, как повернут телефон
