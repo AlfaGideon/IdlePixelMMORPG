@@ -24,8 +24,8 @@ const MOON_SHADE := Color8(206, 202, 178)
 const STAR := [Color8(255, 255, 255), Color8(196, 214, 255), Color8(255, 236, 176)]
 const RIDGE_FAR := Color8(25, 32, 60)
 const RIDGE_NEAR := Color8(15, 20, 40)
-const TREE := Color8(14, 19, 38)
-const TREE_TIP := Color8(32, 44, 72)
+const TREE := Color8(7, 9, 20)
+const TREE_TIP := Color8(30, 40, 66)
 const GROUND := Color8(9, 12, 24)
 const GROUND_HI := Color8(16, 21, 38)
 const GRASS := Color8(17, 25, 42)
@@ -390,15 +390,17 @@ func _draw_treeline() -> void:
 	var gl := _ground_line()
 	var i := -3
 	while i < GRID_WIDTH + 3:
-		var h := 6 + int(_hash01(i, 6.2) * 9)
+		var h := 8 + int(_hash01(i, 6.2) * 10)
 		var cx := i + int(_hash01(i, 7.4) * 3)
-		var max_half := 1.0 + h * 0.20
+		var max_half := 1.0 + h * 0.17
 		for level in h:
 			var y := gl - level
 			var u := float(level) / float(h)
 			var half := int((1.0 - u) * max_half)
+			if level % 3 == 1 and half >= 1:
+				half += 1  # лапы ярусами
 			var col: Color = TREE
-			if level % 3 == 0 and half >= 1:
+			if level % 3 == 1:
 				col = TREE_TIP
 			for x in range(cx - half, cx + half + 1):
 				_put(x, y, col)
@@ -505,7 +507,7 @@ func _draw_camp(t: float) -> void:
 func _draw_fire(t: float) -> void:
 	var camp := _camp_xy()
 	var tongues: Array[Vector3] = [
-		Vector3(0, 15, 1.25),
+		Vector3(0, 15, 1.7),
 		Vector3(-2, 10, 1.0),
 		Vector3(2, 9, 1.0),
 		Vector3(-4, 6, 0.75),
