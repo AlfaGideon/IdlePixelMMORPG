@@ -37,10 +37,6 @@ const FIRE := [
 ]
 const EMBER := Color8(255, 158, 64)
 const FLY := Color8(206, 255, 96)
-const TENT := Color8(40, 36, 60)
-const TENT_SHADE := Color8(24, 21, 38)
-const GUARD := Color8(54, 66, 98)
-const GUARD_LIT := Color8(168, 96, 44)
 const BAR_TROUGH := Color8(13, 17, 32)
 const BAR_TROUGH_HI := Color8(21, 27, 48)
 const BAR_EDGE := Color8(74, 92, 132)
@@ -65,24 +61,7 @@ const RUNNER_W := 20
 const RUNNER_H := 24
 const RUNNER_FRAMES := 6
 
-const GUARD_FRAME := [
-	"..####..",
-	".#....#.",
-	".#.##.#.",
-	".#....#.",
-	"..####..",
-	".######.",
-	"########",
-	"########",
-	"########",
-	".######.",
-	"..####..",
-	"..#..#..",
-	".##..##.",
-]
 
-const TENT_W := 15
-const TENT_H := 9
 
 var progress := 0.0
 var loading := true
@@ -97,6 +76,7 @@ var _star_colors: Array[Color] = []
 var _star_phase: PackedFloat32Array = PackedFloat32Array()
 var _star_speed: PackedFloat32Array = PackedFloat32Array()
 var _runner_frames: Array[Image] = []
+var _canopy: Array[Vector4i] = []
 var _time := 0.0
 var _done_at := -1.0
 var _frame := 0
@@ -114,6 +94,7 @@ func _ready() -> void:
 	_image = Image.create_empty(GRID_WIDTH, GRID_HEIGHT, false, Image.FORMAT_RGBA8)
 	_texture = ImageTexture.create_from_image(_image)
 	_generate_stars()
+	_build_canopy()
 	_load_runner()
 	print("pixel_scene: палитра %d цветов, звёзд %d" % [SKY.size(), _star_x.size()])
 	_render(0.0)
@@ -243,12 +224,17 @@ func _render(t: float) -> void:
 	_draw_moon()
 	_draw_stars(t)
 	_draw_shooting_star(t)
+	_draw_clouds(t)
+	_draw_birds(t)
 	_draw_ridges()
 	_draw_treeline()
 	_draw_ground()
+	_draw_ground_details()
+	_draw_yggdrasil(t)
+	_draw_cabin()
 	_draw_camp_light(t)
 	_draw_camp(t)
-	_draw_fireflies(t)
+	_draw_motes(t)
 	_draw_fire(t)
 	_draw_sparks(t)
 	_draw_bar(t)
@@ -262,8 +248,8 @@ func _draw_sky() -> void:
 
 
 func _draw_moon() -> void:
-	var cx := int(GRID_WIDTH * 0.815)
-	var cy := int(GRID_HEIGHT * 0.163)
+	var cx := int(GRID_WIDTH * 0.155)
+	var cy := int(GRID_HEIGHT * 0.185)
 	var r := maxi(7, int(GRID_WIDTH * 0.082))
 	for y in range(cy - r - 2, cy + r + 3):
 		for x in range(cx - r - 2, cx + r + 3):
@@ -373,6 +359,258 @@ func _draw_ground() -> void:
 			_put(x, y, GROUND_HI)
 
 
+
+# --- большое древо (Иггдрасиль) -----------------------------------------
+
+
+func _sway(t: float, y: int, top: int, base: int) -> int:
+	# у корней движения нет, макушку качает сильнее
+	var k := maxf(0.0, float(base - y) / float(maxi(1, base - top)))
+	return int(round(sin(t * 0.55 + y * 0.055) * 2.4 * pow(k, 1.3)))
+
+
+func _build_canopy() -> void:
+	_canopy = []
+	var cores := [
+		Vector3i(0, -26, 8), Vector3i(-14, -22, 9), Vector3i(14, -22, 9),
+		Vector3i(-24, -10, 9), Vector3i(24, -12, 9), Vector3i(-30, 2, 8),
+		Vector3i(30, 0, 8), Vector3i(-18, -2, 10), Vector3i(0, -6, 11),
+		Vector3i(18, -4, 10), Vector3i(-10, 12, 10), Vector3i(10, 12, 10),
+		Vector3i(0, 22, 9), Vector3i(-26, 14, 8), Vector3i(26, 14, 8),
+		Vector3i(-34, -20, 6), Vector3i(34, -22, 6), Vector3i(-38, -4, 5),
+		Vector3i(38, -6, 5),
+	]
+	for core in cores:
+		var layer := 0
+		if core.y >= 10:
+			layer = 2
+		elif core.y >= -8:
+			layer = 1
+		_canopy.append(Vector4i(TREE_X + core.x, 54 + core.y, core.z, layer))
+	# мелкие кластеры по краю — рваный силуэт
+	for i in 26:
+		var a: float = _hash01(i, 1.7) * TAU
+		var rr: float = 0.72 + _hash01(i, 2.9) * 0.38
+		var dx: int = int(cos(a) * 31.0 * rr)
+		var dy: int = int(sin(a) * 23.0 * rr) - 2
+		_canopy.append(Vector4i(TREE_X + dx, 54 + dy, 3 + int(_hash01(i, 3.1) * 3.0), 2))
+
+
+func _draw_yggdrasil(t: float) -> void:
+	# --- ствол ---
+	for y in range(78, TREE_BASE + 1):
+		var k := float(y - 78) / float(TREE_BASE - 78)
+		var half := int(2.2 + k * 4.6)
+		var sx := TREE_X + _sway(t, y, TREE_TOP, TREE_BASE) / 4
+		for x in range(sx - half, sx + half + 1):
+			var col: Color = BARK
+			if x <= sx - half:
+				col = BARK_DARK
+			elif x >= sx + half:
+				col = BARK_LIT
+			_put(x, y, col)
+		if y % 9 == 0:
+			_put(sx - 1, y, BARK_DARK)
+		if y % 13 == 5:
+			_put(sx + 1, y, BARK_DARK)
+			_put(sx + 2, y, BARK_LIT)
+
+	# --- корни ---
+	for root: Vector2i in [Vector2i(-1, 11), Vector2i(1, 12), Vector2i(-1, 7), Vector2i(1, 7)]:
+		for i in root.y:
+			var x := TREE_X + root.x * (i + 2)
+			var y := TREE_BASE - i / 3
+			_put(x, y, BARK if i > 0 else BARK_DARK)
+			_put(x, y + 1, BARK_DARK)
+	for i in 14:
+		var mx := TREE_X - 8 + int(_hash01(i, 6.1) * 16.0)
+		var my := TREE_BASE - 1 + int(_hash01(i, 7.3) * 3.0)
+		_put(mx, my, MOSS)
+
+	# --- ветви, видные сквозь листву ---
+	var branches: Array[Vector4i] = [
+		Vector4i(0, 76, -16, -8), Vector4i(0, 82, 16, -6), Vector4i(0, 70, -6, -10),
+	]
+	for branch: Vector4i in branches:
+		var steps: int = maxi(absi(branch.z), absi(branch.w))
+		for s in steps:
+			var x := TREE_X + branch.x + branch.z * s / steps
+			var y := branch.y + branch.w * s / steps
+			_put(x, y, BARK_DARK)
+			_put(x + 1, y, BARK)
+
+	# --- крона ---
+	for layer in 3:
+		var dark: Color = CANOPY_DARK
+		var light: Color = CANOPY
+		if layer == 1:
+			dark = CANOPY
+			light = CANOPY_MID
+		elif layer == 2:
+			dark = CANOPY_MID
+			light = CANOPY_LIT
+		for clump in _canopy:
+			if clump.w != layer:
+				continue
+			var bx := clump.x
+			var by := clump.y
+			var r := clump.z
+			for y in range(by - r - 1, by + r + 2):
+				if y < TREE_TOP:
+					continue
+				var dxs := _sway(t, y, TREE_TOP, TREE_BASE)
+				for x in range(bx - r - 1, bx + r + 2):
+					var nx := float(x - bx) / float(r)
+					var ny := float(y - by) / float(r)
+					var d := nx * nx + ny * ny
+					if d > 1.0:
+						if d <= 1.45 and _hash01(x * 31 + y * 17, 4.7) > 0.62:
+							_put(x + dxs, y, _mix(_at(x + dxs, y), dark, 0.6))
+						continue
+					if _hash01(x * 13 + y * 29, 8.3) > 0.955:
+						continue  # просветы в листве
+					var col: Color = dark
+					if ny < -0.15 or (nx < -0.25 and ny < 0.25):
+						col = light
+					_put(x + dxs, y, col)
+
+	# блики луны по листве
+	for i in 18:
+		var x := TREE_X - 30 + int(_hash01(i, 11.3) * 60.0)
+		var y := TREE_TOP + 4 + int(_hash01(i, 12.7) * 22.0)
+		_put(x, y, _mix(_at(x, y), CANOPY_HI, 0.35))
+
+	# --- лианы ---
+	for i in 4:
+		var vx: int = [TREE_X - 30, TREE_X - 16, TREE_X + 16, TREE_X + 30][i]
+		var length := 8 + int(_hash01(i + 40, 3.3) * 12.0)
+		for j in length:
+			var y := 76 + j
+			var x := vx + _sway(t, y, TREE_TOP, TREE_BASE) / 2 + int(sin(j * 0.45 + i) * 1.3)
+			_put(x, y, CANOPY_DARK if j % 3 else CANOPY)
+
+
+func _draw_cabin() -> void:
+	var x0 := 6
+	var y0 := 138
+	var w := 26
+	var h := 22
+	# брёвна
+	for j in h:
+		var y := y0 + j
+		for i in w:
+			var x := x0 + i
+			var col: Color = CABIN_WALL
+			if j % 3 == 2:
+				col = Color8(40, 30, 32)
+			if i >= w - 4:
+				col = CABIN_WALL_LIT
+			_put(x, y, col)
+	# двускатная крыша
+	for j in 9:
+		var y := y0 - 9 + j
+		var half := int(w * 0.5 + 3 - j * 1.6)
+		for x in range(x0 + w / 2 - half, x0 + w / 2 + half + 1):
+			_put(x, y, CABIN_ROOF_LIT if j % 3 == 1 else CABIN_ROOF)
+	# труба и дым
+	for j in 6:
+		_put(x0 + 19, y0 - 14 + j, Color8(28, 26, 38))
+	for j in 6:
+		var sx := x0 + 20 + j / 3
+		var sy := y0 - 22 - j
+		_put(sx, sy, _mix(_at(sx, sy), Color8(120, 130, 150), 0.30 - j * 0.03))
+	# окно
+	for j in 5:
+		for i in 5:
+			_put(x0 + 5 + i, y0 + 6 + j, WINDOW if (i + j) % 5 else WINDOW_GLOW)
+	for j in 5:
+		_put(x0 + 7, y0 + 6 + j, Color8(70, 44, 30))
+	_put(x0 + 5, y0 + 8, Color8(70, 44, 30))
+	_put(x0 + 9, y0 + 8, Color8(70, 44, 30))
+	# дверь
+	for j in 9:
+		for i in 4:
+			_put(x0 + 17 + i, y0 + h - 9 + j, Color8(34, 26, 30))
+
+
+func _draw_clouds(t: float) -> void:
+	for i in 4:
+		var w: int = [18, 22, 14, 16][i]
+		var x0: int = [2, 10, 34, 0][i]
+		var y0: int = [34, 62, 22, 76][i]
+		var drift := int(round(fmod(t * (1.1 + i * 0.3) + i * 37.0, 160.0))) - 20
+		var x := (x0 + drift) % 150 - 15
+		for j in w:
+			var yy := y0 + int(sin(j * 0.5 + i) * 1.6)
+			_put(x + j, yy, _mix(_at(x + j, yy), Color8(58, 66, 96), 0.20))
+			_put(x + j, yy + 1, _mix(_at(x + j, yy + 1), Color8(44, 50, 74), 0.16))
+		for j in range(2, w - 2):
+			_put(x + j, y0 + 2, _mix(_at(x + j, y0 + 2), Color8(48, 56, 82), 0.12))
+
+
+func _draw_birds(t: float) -> void:
+	for i in 3:
+		var x := 16 + int(fmod(t * 2.2 + i * 7.0, 70.0))
+		var y := 24 + i * 4 + int(sin(t * 1.4 + i) * 2.0)
+		_put(x, y, _mix(_at(x, y), Color8(120, 140, 180), 0.55))
+		_put(x + 1, y - 1, _mix(_at(x + 1, y - 1), Color8(120, 140, 180), 0.45))
+		_put(x + 2, y, _mix(_at(x + 2, y), Color8(120, 140, 180), 0.55))
+
+
+func _draw_motes(t: float) -> void:
+	for i in 16:
+		var period := 7.0 + _hash01(i, 2.2) * 6.0
+		var a := t / period * TAU + _hash01(i, 5.5) * TAU
+		var cx := TREE_X + int(cos(a) * (14.0 + _hash01(i, 7.7) * 26.0))
+		var cy := 58 + int(sin(a * 1.3) * (12.0 + _hash01(i, 9.9) * 18.0))
+		var blink := 0.45 + 0.55 * (0.5 + 0.5 * sin(t * 2.4 + i))
+		_put(cx, cy, _mix(_at(cx, cy), FLY, blink))
+		if blink > 0.85:
+			for d: Vector2i in [Vector2i(1, 0), Vector2i(-1, 0), Vector2i(0, 1), Vector2i(0, -1)]:
+				_put(cx + d.x, cy + d.y, _mix(_at(cx + d.x, cy + d.y), FLY, 0.25))
+
+
+func _draw_ground_details() -> void:
+	# тропинка от избы к костру
+	for i in 52:
+		var x := 30 + int(i * 0.55)
+		var y := 160 + int(sin(i * 0.18) * 4.0) + i / 6
+		_put(x, y, _mix(_at(x, y), Color8(36, 42, 62), 0.55))
+		_put(x + 1, y, _mix(_at(x + 1, y), Color8(26, 30, 48), 0.40))
+		if i % 7 == 0:
+			_put(x, y + 1, _mix(_at(x, y + 1), Color8(26, 30, 48), 0.5))
+	# камни
+	var stones: Array[Vector2i] = [
+		Vector2i(22, 172), Vector2i(58, 178), Vector2i(74, 168), Vector2i(96, 176), Vector2i(40, 186),
+	]
+	for stone: Vector2i in stones:
+		_put(stone.x, stone.y, STONE)
+		_put(stone.x + 1, stone.y, STONE)
+		_put(stone.x, stone.y - 1, Color8(78, 86, 110))
+	# грибы
+	for mushroom: Vector2i in [Vector2i(16, 165), Vector2i(88, 160), Vector2i(104, 170)]:
+		_put(mushroom.x, mushroom.y, Color8(150, 60, 60))
+		_put(mushroom.x, mushroom.y - 1, Color8(196, 96, 82))
+	# кусты
+	var bushes: Array[Vector3i] = [
+		Vector3i(88, 168, 5), Vector3i(100, 162, 4), Vector3i(66, 176, 4), Vector3i(108, 178, 5),
+	]
+	for bush: Vector3i in bushes:
+		for y in range(bush.y - bush.z, bush.y + bush.z + 1):
+			for x in range(bush.x - bush.z, bush.x + bush.z + 1):
+				var dx := x - bush.x
+				var dy := y - bush.y
+				if dx * dx + dy * dy <= bush.z * bush.z and _hash01(x * 7 + y * 3, 5.5) > 0.15:
+					_put(x, y, _mix(_at(x, y), Color8(18, 46, 40), 0.9 if (x + y) % 3 else 0.6))
+		_put(bush.x, bush.y - bush.z, Color8(30, 66, 52))
+	# трава
+	for x in range(4, 118, 3):
+		if _hash01(x, 8.4) > 0.55:
+			var y := 150 + int(_hash01(x, 9.1) * 40.0)
+			_put(x, y, Color8(28, 52, 44))
+			_put(x, y - 1, Color8(36, 66, 52))
+
+
 func _draw_camp_light(t: float) -> void:
 	var camp := _camp_xy()
 	var flicker := 0.95 + 0.05 * sin(t * 5.7) + 0.025 * sin(t * 12.3)
@@ -397,29 +635,12 @@ func _draw_camp_light(t: float) -> void:
 func _draw_camp(t: float) -> void:
 	var camp := _camp_xy()
 
-	# палатка слева: сплошной полог, вход в тени
-	var tx := camp.x - 30
-	var ty := camp.y - TENT_H + 2
-	for j in TENT_H:
-		var u := float(j) / float(TENT_H - 1)
-		var half := int(u * (TENT_W * 0.5))
-		for i in range(-half, half + 1):
-			var col: Color = TENT
-			if i <= -half + 2:
-				col = TENT_SHADE
-			elif i >= half - 1:
-				col = _mix(TENT, Color8(150, 120, 96), 0.20)
-			_put(tx + TENT_W / 2 + i, ty + j, col)
-	for j in range(TENT_H - 5, TENT_H):
-		for i in range(-1, 2):
-			_put(tx + TENT_W / 2 + i, ty + j, _mix(TENT_SHADE, OUTLINE, 0.45))
-	_put(tx + TENT_W / 2, ty - 1, _mix(TENT, LOG_DARK, 0.5))
-
-	# камни
+	var flicker := 0.5 + 0.5 * sin(t * 3.1)  # лёгкое дрожание света на камнях
+	# камни вокруг костра
 	for dx in [-9, -7, -5, 5, 7, 9]:
 		_put(camp.x + dx, camp.y + 2, STONE)
 		if absi(dx) <= 7:
-			_put(camp.x + dx, camp.y + 1, _mix(STONE, GROUND, 0.35))
+			_put(camp.x + dx, camp.y + 1, _mix(STONE, Color8(146, 84, 40), 0.10 + 0.12 * flicker))
 
 	# поленья
 	for i in range(-5, 6):
@@ -429,26 +650,6 @@ func _draw_camp(t: float) -> void:
 	for i in [-6, 6]:
 		_put(camp.x + i, camp.y - 1, LOG_DARK)
 		_put(camp.x + i, camp.y, LOG_DARK)
-
-	# страж справа
-	var bob := 1 if sin(t * 1.4) > 0.7 else 0
-	var hx := camp.x + 11
-	var hy := camp.y - GUARD_FRAME.size() + 3 + bob
-	for j in GUARD_FRAME.size():
-		var row: String = GUARD_FRAME[j]
-		for i in row.length():
-			if row[i] != "#":
-				continue
-			var col: Color = GUARD
-			if i <= 2:
-				col = _mix(GUARD, GUARD_LIT, 0.5)
-			elif i > 4:
-				col = _mix(GUARD, OUTLINE, 0.5)
-			_put(hx + i, hy + j, col)
-	var spear_x := hx + GUARD_FRAME[0].length() + 1
-	for j in range(-1, GUARD_FRAME.size()):
-		_put(spear_x, hy + j, Color8(74, 84, 112))
-	_put(spear_x, hy - 3, _mix(GUARD, Color8(206, 216, 236), 0.7))
 
 
 func _draw_fire(t: float) -> void:
@@ -488,19 +689,6 @@ func _draw_sparks(t: float) -> void:
 		var y := camp.y - 5 - int(u * 24.0)
 		var col := _mix(EMBER, FIRE[0], u)
 		_put(x, y, _mix(GROUND, col, 1.0 - u * 0.6))
-
-
-func _draw_fireflies(t: float) -> void:
-	var gl := _ground_line()
-	for i in 10:
-		var bx := int(GRID_WIDTH * (0.06 + _hash01(i, 19.3) * 0.88))
-		var by := gl + int(_hash01(i, 20.9) * (GRID_HEIGHT - gl) * 0.42)
-		var x := bx + int(sin(t * (0.6 + _hash01(i, 21.7)) + i) * 6.0)
-		var y := by + int(cos(t * (0.45 + _hash01(i, 22.3)) + i * 1.7) * 3.0)
-		var k := 0.2 + 0.8 * (0.5 + 0.5 * sin(t * 1.7 + i * 1.31))
-		_put(x, y, _mix(GROUND, FLY, k))
-		if k > 0.82:
-			_put(x, y - 1, _mix(GROUND, FLY, k * 0.3))
 
 
 func _draw_bar(t: float) -> void:
