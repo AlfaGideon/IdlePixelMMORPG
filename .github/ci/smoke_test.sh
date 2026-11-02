@@ -40,9 +40,13 @@ run_check "import" 0 timeout 180 "$GODOT" --headless --path "$PROJECT" --import
 # 2. Реальная загрузка проекта: 120 кадров, затем выход
 export BOOT_CAPTURE=1
 export BOOT_CAPTURE_PATH="$PWD/client/boot_capture.png"
-run_check "run" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 150
+export GAME_CAPTURE=1
+export GAME_CAPTURE_PATH="$PWD/client/game_capture.png"
+run_check "run" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 210
 unset BOOT_CAPTURE
 unset BOOT_CAPTURE_PATH
+unset GAME_CAPTURE
+unset GAME_CAPTURE_PATH
 
 # 3. Отдельно проверим, что скрипты компилируются (--check-only)
 for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/kit.gd; do
@@ -50,7 +54,7 @@ for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/kit.gd; 
 done
 
 # 4. Сцена должна реально стартовать и нарисовать кадр
-for marker in "boot: старт" "pixel_scene: первый кадр"; do
+for marker in "boot: старт" "pixel_scene: первый кадр" "game_hud: снимок интерфейса"; do
   if grep -q "$marker" "$LOG"; then
     echo "OK: $marker"
   else

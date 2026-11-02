@@ -4,3 +4,7 @@ ci-logs/*.md
 
 # временный снимок кадра из CI
 client/boot_capture.png
+
+# питоновский кэш
+tools/__pycache__/
+__pycache__/

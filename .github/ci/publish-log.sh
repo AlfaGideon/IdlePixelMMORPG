@@ -27,7 +27,7 @@ mkdir -p ci-logs
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-for shot in client/boot_capture*.png; do
+for shot in client/boot_capture*.png client/game_capture*.png; do
   [ -f "$shot" ] || continue
   cp "$shot" "ci-logs/$(basename "$shot")"
   git add -f "ci-logs/$(basename "$shot")"
