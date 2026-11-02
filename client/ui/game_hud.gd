@@ -226,6 +226,11 @@ func _maybe_capture() -> void:
 
 # --- примитивы -----------------------------------------------------------
 
+func _hash01(n: int, salt: float) -> float:
+	var x := sin(n * 12.9898 + salt * 78.233) * 43758.5453
+	return x - floorf(x)
+
+
 func _px(x: int, y: int, c: Color) -> void:
 	if x >= 0 and y >= 0 and x < GRID_W and y < GRID_H:
 		_image.set_pixel(x, y, c)
@@ -395,6 +400,18 @@ func _draw_fight() -> void:
 	for y in range(ground_y, arena.end.y - 1):
 		var k := float(y - ground_y) / float(maxi(1, arena.end.y - ground_y))
 		_rect(arena.position.x + 1, y, arena.size.x - 2, 1, ARENA_GROUND.lerp(ARENA_GROUND_HI, k))
+	# небо арены: луна и звёзды
+	var mx := arena.position.x + 112
+	var my := arena.position.y + 22
+	for j in range(-6, 7):
+		for i in range(-6, 7):
+			if i * i + j * j <= 30:
+				_px(mx + i, my + j, Color8(238, 236, 214))
+	for i in 22:
+		var sx := arena.position.x + 4 + int(_hash01(i, 3.7) * float(arena.size.x - 8))
+		var sy := arena.position.y + 4 + int(_hash01(i, 5.1) * 60.0)
+		_px(sx, sy, Color8(150, 170, 210) if i % 3 else Color8(220, 230, 250))
+
 	# дальний лес: короткие силуэты елей вдоль горизонта
 	for i in range(0, arena.size.x - 2, 5):
 		var h := 5 + (i * 7) % 6
@@ -573,8 +590,8 @@ func _draw_shop() -> void:
 # --- футер ---------------------------------------------------------------
 
 func _tab_rect(i: int) -> Rect2i:
-	var w := 33
-	var gap := 1
+	var w := 35
+	var gap := 0
 	var total := w * TABS.size() + gap * (TABS.size() - 1)
 	var x0 := (GRID_W - total) / 2
 	return Rect2i(x0 + i * (w + gap), FOOTER_Y + 5, w, FOOTER_H - 10)
@@ -599,6 +616,9 @@ func _draw_footer() -> void:
 		var r := _tab_rect(i)
 		var active := i == tab
 		_panel(r.position.x, r.position.y, r.size.x, r.size.y, PANEL_HI if active else PANEL)
+		if i > 0:
+			for j in range(r.position.y + 2, r.position.y + r.size.y - 2):
+				_px(r.position.x - 1, j, FRAME_DARK)
 		if active:
 			for k in range(3, r.size.x - 3):
 				_px(r.position.x + k, r.position.y + r.size.y - 2, GOLD)
