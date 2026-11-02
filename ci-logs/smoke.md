@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 9e37329e3ac7b78ec1b722e97e1df6fc79f5c20e
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41507598747
+- коммит: 06e42380670b553c930c066e5de2adfcfe379bdb
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41507788767
 
 ```
 ===== import =====
@@ -66,7 +66,9 @@ pixel_scene: спрайт героя 6 кадров 20x24
 pixel_scene: палитра 5 цветов, звёзд 96
 pixel_scene: первый кадр, сетка 120x214
 boot: старт, сцена=true, размер=(1280.0, 1280.0)
-pixel_scene: снимок кадра -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture.png (0)
+pixel_scene: снимок 0 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture.png (0)
+pixel_scene: снимок 1 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_1.png (0)
+pixel_scene: снимок 2 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_2.png (0)
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
