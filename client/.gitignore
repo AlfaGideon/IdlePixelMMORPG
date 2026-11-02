@@ -1,5 +1,7 @@
-/build
-/.internal
-/.editor_settings
-*.tmp
-*.pid
+# Godot 4
+.godot/
+/android/
+/export/
+*.translation
+export_credentials.cfg
+*.keystore

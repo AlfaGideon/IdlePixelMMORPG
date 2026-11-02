@@ -1,42 +1,49 @@
-# Клиент IdlePixelMMORPG (Defold)
-
-Скелет создан от официального мобильного шаблона Defold (`defold/template-mobile`) и
-адаптирован под динамическую ориентацию.
+# Клиент IdlePixelMMORPG (Godot 4)
 
 ## Как открыть
 
-1. Установить **Defold 1.14.x** (https://defold.com/download/).
-2. `File → Open Project…` → выбрать `client/game.project`.
-3. `Project → Build` (F8) — запуск в окне редактора (десктоп).
-4. `Project → Build And Run` — выбор устройства/эмулятора Android.
+1. Установить **Godot 4.7** (стандартная сборка, не .NET): https://godotengine.org/download
+2. `Godot → Import` → выбрать `client/project.godot` → `Import & Edit`.
+3. `F5` — запуск. Окно откроется 405×720 (как телефон); тяните за угол — раскладка
+   переключится между портретом и ландшафтом, а строка статуса покажет размер и отступы.
 
-Сборка APK на машине без Android SDK невозможна: она вынесена в GitHub Actions (см. `docs/PLAN.md §7`).
+Проект специально сделан так, чтобы открыться в чистом редакторе **без ручной настройки**:
+нет `.import`-файлов, нет плагинов, нет внешних зависимостей.
 
 ## Что внутри
 
 | Файл | Назначение |
 |---|---|
-| `game.project` | 720×1280, `display.dynamic_orientation = 1`, Android-пакет `com.idlepixel.mmorpg` |
-| `input/game.input_binding` | тап/клик → action `touch` (как в официальном шаблоне) |
-| `main/main.collection` | входная коллекция, один game object |
-| `main/main.go` | компоненты: `main.script` + `hud.gui` |
-| `main/main.script` | лог жизненного цикла, приём ввода |
-| `main/hud.gui` | заглушка HUD: панель, заголовок, подпись, строка состояния, подсказка |
-| `main/hud.gui_script` | пересчёт раскладки по `window.get_size()`, `window.get_safe_area()`, `WINDOW_EVENT_RESIZED` |
-| `main/fonts/*.font` | шрифт интерфейса, `all_chars = true` (нужна кириллица) |
-| `assets/fonts/` | Source Sans Pro (SIL OFL 1.1), лицензия рядом |
+| `project.godot` | 720×1280, `handheld/orientation=6` (sensor: и портрет, и ландшафт), `stretch/canvas_items` + `aspect=expand`, рендерер `gl_compatibility` (нужен для web), фильтр текстур `nearest` (пиксель-арт) |
+| `main.tscn` | корневой `Control` со скриптом — минимум ручного текста сцены |
+| `scripts/main.gd` | сборка HUD из контейнеров, реакция на `size_changed`, учёт safe area |
+| `ui/kit.gd` | `UIKit`: фабрики узлов (label / panel / box / spacer) и палитра |
+| `assets/fonts/` | Source Sans Pro (SIL OFL 1.1) — нужен для кириллицы |
+| `icon.svg` | иконка приложения |
 
-## Как проверить динамическую ориентацию
+## Почему UI собирается кодом, а не сценой
 
-Запустить на телефоне и повернуть его: строка состояния внизу показывает
-`портрет/ландшафт · ширина×высота · safe x,y w×h`, а панель и подписи пересчитываются.
-В лог пишется `[hud] portrait 720x1280 scale=… safe=…`.
+Это осознанный компромисс на старте: сцены удобны, но их текст нельзя проверить
+без редактора, а здесь каждая правка должна быть проверяемой. Как только появится
+полноценный экран (аванпост, герой, бой), он переедет в `.tscn`, а `UIKit` останется
+для повторяющихся элементов. Дерево контейнеров всё равно строится одинаково.
 
-В редакторе размер окна можно менять в `Project → Properties → display.width/height` —
-но настоящая проверка только на устройстве, где есть вырез и системные панели.
+## Портрет и ландшафт
 
-## Дальше по плану
+- `BoxContainer.vertical` переключается по соотношению сторон — контейнер сам
+  перестраивает дочерние элементы, вручную ничего не двигаем.
+- Отступы берутся из `DisplayServer.get_display_safe_area()` и пересчитываются
+  из физических пикселей в единицы дизайна.
+- Раскладка обновляется по сигналу `get_viewport().size_changed`.
 
-Экраны `camp`, `hero`, `battle`, `map`, `market`, `chat` и layout-библиотека (`ui/`) —
-см. `docs/PLAN.md §4.2–4.4`. Этот HUD-скрипт — заготовка той самой библиотеки:
-пересчёт по safe area и dp-единицам.
+## Что дальше
+
+Экраны `camp`, `hero`, `battle`, `map`, `market`, `chat` и сетевой слой — см.
+`docs/PLAN.md §4`.
+
+## Проверка без запуска
+
+```bash
+python3 tools/check_godot_project.py client   # ссылки, узлы, sub/ext-ресурсы
+gdlint client/scripts client/ui               # линт GDScript
+```

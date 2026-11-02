@@ -7,7 +7,8 @@
 Compiled-суффикс `c` (например /main/main.collectionc) отбрасывается.
 Пути /builtins/... принадлежат движку и не проверяются.
 
-Запуск: python3 tools/check_client_refs.py [client_dir]
+Запуск: python3 tools/check_defold_refs.py [client_dir]
+(по умолчанию проверяется замороженный legacy/defold-client)
 """
 
 from __future__ import annotations
@@ -63,7 +64,7 @@ def resolve(client: Path, raw: str) -> Path | None:
 
 
 def main() -> int:
-    client = Path(sys.argv[1] if len(sys.argv) > 1 else "client").resolve()
+    client = Path(sys.argv[1] if len(sys.argv) > 1 else "legacy/defold-client").resolve()
     if not (client / "game.project").exists():
         print(f"не найден game.project в {client}")
         return 2
