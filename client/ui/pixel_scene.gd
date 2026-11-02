@@ -252,6 +252,7 @@ func _render(t: float) -> void:
 	_draw_ground_details()
 	_draw_yggdrasil(t)
 	_draw_cabin()
+	_draw_lantern()
 	_draw_camp_light(t)
 	_draw_camp(t)
 	_draw_motes(t)
@@ -529,9 +530,11 @@ func _draw_cabin() -> void:
 	# двускатная крыша
 	for j in 9:
 		var y := y0 - 9 + j
-		var half := int(w * 0.5 + 3 - j * 1.6)
+		var half := int(3.0 + j * 1.6)
 		for x in range(x0 + w / 2 - half, x0 + w / 2 + half + 1):
 			_put(x, y, CABIN_ROOF_LIT if j % 3 == 1 else CABIN_ROOF)
+	for i in range(-3, 4):
+		_put(x0 + w / 2 + i, y0 - 10, CABIN_ROOF_LIT)
 	# труба и дым
 	for j in 6:
 		_put(x0 + 19, y0 - 14 + j, Color8(28, 26, 38))
@@ -551,6 +554,24 @@ func _draw_cabin() -> void:
 	for j in 9:
 		for i in 4:
 			_put(x0 + 17 + i, y0 + h - 9 + j, Color8(34, 26, 30))
+
+
+func _draw_lantern() -> void:
+	var x := 52
+	for y in range(147, 160):
+		_put(x, y, BARK_DARK)
+		_put(x + 1, y, BARK)
+	_put(x + 2, 147, BARK_DARK)
+	_put(x + 2, 148, BARK_DARK)
+	for j in 3:
+		for i in 3:
+			_put(x + 3 + i, 149 + j, WINDOW if (i + j) % 2 == 0 else WINDOW_GLOW)
+	for dy in range(-3, 4):
+		for dx in range(-3, 4):
+			if dx * dx + dy * dy <= 9:
+				var gx := x + 4 + dx
+				var gy := 150 + dy
+				_put(gx, gy, _mix(_at(gx, gy), WINDOW, 0.09))
 
 
 func _draw_clouds(t: float) -> void:
