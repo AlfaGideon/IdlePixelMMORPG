@@ -612,7 +612,7 @@ func _draw_shop() -> void:
 # --- футер ---------------------------------------------------------------
 
 func _tab_rect(i: int) -> Rect2i:
-	var w := 35
+	var w := 36
 	var gap := 0
 	var total := w * TABS.size() + gap * (TABS.size() - 1)
 	var x0 := (GRID_W - total) / 2
@@ -646,7 +646,7 @@ func _draw_footer() -> void:
 				_px(r.position.x + k, r.position.y + r.size.y - 2, GOLD)
 		_draw_tab_icon(i, r.position.x + r.size.x / 2, r.position.y + 7, active)
 		var label: String = TABS[i]
-		if PixelFont.width(label) > r.size.x - 10:
+		if PixelFont.width(label) > r.size.x - 6:
 			_text_tiny_center(label, r.position.x + r.size.x / 2, r.position.y + r.size.y - 10,
 				GOLD if active else TEXT_DIM)
 		else:
