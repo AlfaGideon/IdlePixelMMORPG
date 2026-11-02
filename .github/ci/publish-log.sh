@@ -27,7 +27,7 @@ mkdir -p ci-logs
 
 git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-git add "ci-logs/${JOB}.md"
+git add -f "ci-logs/${JOB}.md"
 git commit -m "ci: лог сборки ${JOB} [skip ci]" || exit 0
 
 # оба джоба пишут в одну ветку — ретраим с ребейзом, иначе push отклоняется
