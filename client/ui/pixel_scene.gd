@@ -36,9 +36,9 @@ const FIRE := [
 ]
 const EMBER := Color8(255, 158, 64)
 const FLY := Color8(206, 255, 96)
-const TENT := Color8(33, 29, 48)
-const TENT_SHADE := Color8(21, 18, 34)
-const GUARD := Color8(28, 32, 50)
+const TENT := Color8(40, 36, 60)
+const TENT_SHADE := Color8(24, 21, 38)
+const GUARD := Color8(36, 44, 70)
 const GUARD_LIT := Color8(168, 96, 44)
 const BAR_TROUGH := Color8(13, 17, 32)
 const BAR_TROUGH_HI := Color8(21, 27, 48)
@@ -147,16 +147,8 @@ const GUARD_FRAME := [
 	".##..##.",
 ]
 
-const TENT_FRAME := [
-	"......#......",
-	".....#.#.....",
-	"....#...#....",
-	"...#.....#...",
-	"..#...#...#..",
-	".#....#....#.",
-	"#.....#.....#",
-	"#############",
-]
+const TENT_W := 15
+const TENT_H := 9
 
 var progress := 0.0
 var loading := true
@@ -397,17 +389,20 @@ func _draw_treeline() -> void:
 	var gl := _ground_line()
 	var i := -3
 	while i < GRID_WIDTH + 3:
-		var h := 4 + int(_hash01(i, 6.2) * 8)
+		var h := 6 + int(_hash01(i, 6.2) * 9)
 		var cx := i + int(_hash01(i, 7.4) * 3)
+		var max_half := 1.0 + h * 0.20
 		for level in h:
 			var y := gl - level
-			var half := 0
-			if level >= h * 0.5:
-				half = int((level - h * 0.5) / (h * 0.5) * (1 + h * 0.16))
+			var u := float(level) / float(h)
+			var half := int((1.0 - u) * max_half)
+			var col: Color = TREE
+			if level % 3 == 0 and half >= 1:
+				col = TREE_TIP
 			for x in range(cx - half, cx + half + 1):
-				_put(x, y, TREE)
-		_put(cx, gl + 1, TREE)
-		i += 2 + int(_hash01(i, 9.1) * 3)
+				_put(x, y, col)
+		_put(cx, gl + 1, _mix(TREE, LOG_DARK, 0.55))
+		i += 5 + int(_hash01(i, 9.1) * 4)
 
 
 func _draw_ground() -> void:
@@ -452,22 +447,23 @@ func _draw_camp_light(t: float) -> void:
 func _draw_camp(t: float) -> void:
 	var camp := _camp_xy()
 
-	# палатка слева
-	var tx := camp.x - 27
-	var ty := camp.y - TENT_FRAME.size() + 3
-	for j in TENT_FRAME.size():
-		var row: String = TENT_FRAME[j]
-		for i in row.length():
-			if row[i] != "#":
-				continue
+	# палатка слева: сплошной полог, вход в тени
+	var tx := camp.x - 30
+	var ty := camp.y - TENT_H + 2
+	for j in TENT_H:
+		var u := float(j) / float(TENT_H - 1)
+		var half := int(u * (TENT_W * 0.5))
+		for i in range(-half, half + 1):
 			var col: Color = TENT
-			if i >= row.length() - 5:
-				col = _mix(TENT, Color8(150, 92, 46), 0.42)
-			elif j >= TENT_FRAME.size() - 2:
+			if i <= -half + 2:
 				col = TENT_SHADE
-			_put(tx + i, ty + j, col)
-	for j in range(4, TENT_FRAME.size() - 1):
-		_put(tx + 6, ty + j, _mix(TENT_SHADE, OUTLINE, 0.5))
+			elif i >= half - 1:
+				col = _mix(TENT, Color8(150, 120, 96), 0.20)
+			_put(tx + TENT_W / 2 + i, ty + j, col)
+	for j in range(TENT_H - 5, TENT_H):
+		for i in range(-1, 2):
+			_put(tx + TENT_W / 2 + i, ty + j, _mix(TENT_SHADE, OUTLINE, 0.45))
+	_put(tx + TENT_W / 2, ty - 1, _mix(TENT, LOG_DARK, 0.5))
 
 	# камни
 	for dx in [-9, -7, -5, 5, 7, 9]:
@@ -501,25 +497,25 @@ func _draw_camp(t: float) -> void:
 			_put(hx + i, hy + j, col)
 	var spear_x := hx + GUARD_FRAME[0].length() + 1
 	for j in range(-2, GUARD_FRAME.size() + 2):
-		_put(spear_x, hy + j, _mix(OUTLINE, LOG_COL, 0.7))
+		_put(spear_x, hy + j, Color8(92, 104, 138))
 	_put(spear_x, hy - 3, _mix(GUARD, Color8(206, 216, 236), 0.7))
 
 
 func _draw_fire(t: float) -> void:
 	var camp := _camp_xy()
 	var tongues: Array[Vector3] = [
-		Vector3(-4, 8, 1.4),
-		Vector3(0, 12, 1.1),
-		Vector3(4, 7, 1.5),
-		Vector3(-7, 5, 0.9),
-		Vector3(7, 4, 0.85),
+		Vector3(0, 15, 1.25),
+		Vector3(-2, 10, 1.0),
+		Vector3(2, 9, 1.0),
+		Vector3(-4, 6, 0.75),
+		Vector3(4, 5, 0.7),
 	]
 	for tongue: Vector3 in tongues:
 		var flick: float = 0.62 + 0.38 * sin(t * (5.5 + absf(tongue.x) * 0.7) + tongue.x * 1.9)
 		var h: int = maxi(1, int(tongue.y * flick))
 		for y in h:
 			var k: float = float(y) / maxf(1.0, h - 1.0)
-			var half: int = int((1.0 - k) * tongue.z * 1.5)
+			var half: int = int((1.0 - k) * tongue.z * 1.35)
 			for x in range(-half, half + 1):
 				var col: Color
 				if k > 0.88:
