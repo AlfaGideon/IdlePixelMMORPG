@@ -39,7 +39,7 @@ const EMBER := Color8(255, 158, 64)
 const FLY := Color8(206, 255, 96)
 const TENT := Color8(40, 36, 60)
 const TENT_SHADE := Color8(24, 21, 38)
-const GUARD := Color8(36, 44, 70)
+const GUARD := Color8(54, 66, 98)
 const GUARD_LIT := Color8(168, 96, 44)
 const BAR_TROUGH := Color8(13, 17, 32)
 const BAR_TROUGH_HI := Color8(21, 27, 48)
@@ -447,7 +447,7 @@ func _draw_camp(t: float) -> void:
 			_put(hx + i, hy + j, col)
 	var spear_x := hx + GUARD_FRAME[0].length() + 1
 	for j in range(-1, GUARD_FRAME.size()):
-		_put(spear_x, hy + j, Color8(92, 104, 138))
+		_put(spear_x, hy + j, Color8(74, 84, 112))
 	_put(spear_x, hy - 3, _mix(GUARD, Color8(206, 216, 236), 0.7))
 
 
