@@ -537,12 +537,12 @@ func _draw_runner(t: float) -> void:
 	var index := int(t * 12.0) % RUNNER_FRAMES if moving else 0
 	# не даём герою выйти за полоску и за экран на финише
 	var px0 := clampi(bar.position.x + 1 + fill_w - RUNNER_W / 2, 2, GRID_WIDTH - RUNNER_W - 2)
-	var py0 := bar.position.y - RUNNER_H + 3
+	var py0 := bar.position.y - RUNNER_H + 1
 
 	# пыль из-под ног
 	for i in 4:
 		var k := _hash01(int(t * 12.0) + i, 23.1)
-		_put(px0 - 1 - i * 2 - int(k * 3.0), bar.position.y - int(k * 2.0),
+		_put(px0 - 1 - i * 2 - int(k * 3.0), bar.position.y - 1 - int(k * 2.0),
 			_mix(GROUND, DUST, 0.5 - i * 0.1))
 
 	if _runner_frames.is_empty():
