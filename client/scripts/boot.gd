@@ -19,6 +19,9 @@ var _fake_progress := 0.0
 
 
 func _ready() -> void:
+	print("boot: старт, сцена=%s, размер=%s" % [_scene != null, str(get_viewport_rect().size)])
+	if _scene == null:
+		push_error("boot: узел PixelScene не найден")
 	if _logo != null:
 		_logo.modulate.a = 0.0
 		var tween := create_tween()

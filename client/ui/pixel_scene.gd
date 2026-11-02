@@ -176,6 +176,9 @@ var _frame := 0
 var _elapsed_since_frame := 0.0
 
 
+var _diag_frames := 0
+
+
 func _ready() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
@@ -184,6 +187,7 @@ func _ready() -> void:
 	_image = Image.create_empty(GRID_WIDTH, GRID_HEIGHT, false, Image.FORMAT_RGB8)
 	_texture = ImageTexture.create_from_image(_image)
 	_generate_stars()
+	print("pixel_scene: палитра %d цветов, звёзд %d" % [SKY.size(), _star_x.size()])
 	_render(0.0)
 
 
@@ -292,6 +296,9 @@ func _gradient(y0: int, y1: int, colors: Array) -> void:
 # --- отрисовка кадра -----------------------------------------------------
 
 func _render(t: float) -> void:
+	_diag_frames += 1
+	if _diag_frames == 1:
+		print("pixel_scene: первый кадр, сетка %dx%d" % [GRID_WIDTH, GRID_HEIGHT])
 	_draw_sky()
 	_draw_moon()
 	_draw_stars(t)
