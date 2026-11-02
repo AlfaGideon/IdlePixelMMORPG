@@ -45,6 +45,26 @@ const FILL_A := Color8(92, 226, 146)
 const FILL_B := Color8(52, 178, 166)
 const FILL_HI := Color8(198, 255, 216)
 const OUTLINE := Color8(4, 6, 10)
+
+# --- древо и изба ---
+const TREE_X := 72
+const TREE_BASE := 124
+const TREE_TOP := 28
+const CANOPY_DARK := Color8(16, 40, 44)
+const CANOPY := Color8(26, 68, 62)
+const CANOPY_MID := Color8(40, 98, 76)
+const CANOPY_LIT := Color8(78, 156, 100)
+const CANOPY_HI := Color8(126, 200, 128)
+const BARK_DARK := Color8(18, 20, 34)
+const BARK := Color8(38, 34, 46)
+const BARK_LIT := Color8(66, 56, 62)
+const MOSS := Color8(46, 96, 70)
+const CABIN_WALL := Color8(58, 44, 44)
+const CABIN_WALL_LIT := Color8(92, 68, 56)
+const CABIN_ROOF := Color8(34, 30, 44)
+const CABIN_ROOF_LIT := Color8(58, 52, 70)
+const WINDOW := Color8(255, 196, 96)
+const WINDOW_GLOW := Color8(196, 128, 52)
 const DUST := Color8(96, 124, 164)
 
 const BAYER := [
@@ -401,7 +421,7 @@ func _draw_yggdrasil(t: float) -> void:
 	for y in range(78, TREE_BASE + 1):
 		var k := float(y - 78) / float(TREE_BASE - 78)
 		var half := int(2.2 + k * 4.6)
-		var sx := TREE_X + _sway(t, y, TREE_TOP, TREE_BASE) / 4
+		var sx: int = TREE_X + _sway(t, y, TREE_TOP, TREE_BASE) / 4
 		for x in range(sx - half, sx + half + 1):
 			var col: Color = BARK
 			if x <= sx - half:
