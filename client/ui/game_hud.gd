@@ -363,19 +363,19 @@ func _enemy_card_rect() -> Rect2i:
 
 
 func _arena_rect() -> Rect2i:
-	return Rect2i(4, HEADER_H + 30, GRID_W - 8, 106)
+	return Rect2i(4, HEADER_H + 30, GRID_W - 8, 128)
 
 
 func _fight_button_rect() -> Rect2i:
-	return Rect2i(6, 200, 106, 24)
+	return Rect2i(6, 194, 106, 24)
 
 
 func _auto_rect() -> Rect2i:
-	return Rect2i(116, 200, 58, 24)
+	return Rect2i(116, 194, 58, 24)
 
 
 func _log_rect() -> Rect2i:
-	return Rect2i(4, 228, GRID_W - 8, FOOTER_Y - 232)
+	return Rect2i(4, 222, GRID_W - 8, FOOTER_Y - 226)
 
 
 func _draw_fight() -> void:
@@ -395,16 +395,21 @@ func _draw_fight() -> void:
 	for y in range(ground_y, arena.end.y - 1):
 		var k := float(y - ground_y) / float(maxi(1, arena.end.y - ground_y))
 		_rect(arena.position.x + 1, y, arena.size.x - 2, 1, ARENA_GROUND.lerp(ARENA_GROUND_HI, k))
-	# дальние ели внутри арены
-	for i in range(0, arena.size.x - 2, 7):
-		var h := 6 + (i * 13) % 9
+	# дальний лес: короткие силуэты елей вдоль горизонта
+	for i in range(0, arena.size.x - 2, 5):
+		var h := 5 + (i * 7) % 6
 		var tx := arena.position.x + 1 + i
 		for j in h:
-			var half := (j * 3) / h
+			var half := (j * 2) / h
 			for dx in range(-half, half + 1):
-				_px(tx + dx, ground_y - 1 - j, Color8(18, 30, 40))
-	for i in range(arena.position.x + 2, arena.end.x - 2, 9):
-		_px(i, ground_y, Color8(56, 74, 92))
+				_px(tx + dx, ground_y - 1 - j, Color8(16, 26, 38))
+	# кромка травы по горизонту
+	for i in range(arena.position.x + 1, arena.end.x - 1):
+		if (i * 7) % 5 == 0:
+			_px(i, ground_y - 1, Color8(46, 70, 62))
+	# точки на земле
+	for i in range(arena.position.x + 3, arena.end.x - 3, 6):
+		_px(i, ground_y + 6 + (i % 5), Color8(40, 52, 76))
 
 	# герой
 	if not _hero.is_empty():
@@ -568,8 +573,8 @@ func _draw_shop() -> void:
 # --- футер ---------------------------------------------------------------
 
 func _tab_rect(i: int) -> Rect2i:
-	var w := 31
-	var gap := 3
+	var w := 34
+	var gap := 1
 	var total := w * TABS.size() + gap * (TABS.size() - 1)
 	var x0 := (GRID_W - total) / 2
 	return Rect2i(x0 + i * (w + gap), FOOTER_Y + 5, w, FOOTER_H - 10)
