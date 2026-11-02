@@ -574,7 +574,8 @@ func _draw_runner(t: float) -> void:
 	var sw: int = sprite[0].length()
 	var sh: int = sprite.size()
 	var bob := 1 if (moving and (frame == 0 or frame == 2)) else 0
-	var px0 := bar.position.x + 1 + fill_w - sw / 2
+	# не даём герою выйти за полоску и за экран на финише
+	var px0 := clampi(bar.position.x + 1 + fill_w - sw / 2, 2, GRID_WIDTH - sw - 2)
 	var py0 := bar.position.y - sh + 2 + bob
 
 	for i in 3:

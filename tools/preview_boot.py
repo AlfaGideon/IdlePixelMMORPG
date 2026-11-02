@@ -485,7 +485,7 @@ def draw_runner(c, g, progress, t):
     sprite = RUNNER_FRAMES[frame]
     sw, sh = len(sprite[0]), len(sprite)
     bob = 1 if (moving and frame in (0, 2)) else 0
-    px0 = x + 1 + fill_w - sw // 2
+    px0 = max(2, min(x + 1 + fill_w - sw // 2, GRID[0] - sw - 2))
     py0 = y - sh + 2 + bob
 
     for i in range(3):
