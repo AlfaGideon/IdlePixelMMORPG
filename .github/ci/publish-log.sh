@@ -29,4 +29,15 @@ git config user.name "github-actions[bot]"
 git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 git add "ci-logs/${JOB}.md"
 git commit -m "ci: лог сборки ${JOB} [skip ci]" || exit 0
-git push origin "HEAD:${GITHUB_REF_NAME}" || true
+
+# оба джоба пишут в одну ветку — ретраим с ребейзом, иначе push отклоняется
+for attempt in 1 2 3 4 5; do
+  if git push origin "HEAD:${GITHUB_REF_NAME}"; then
+    exit 0
+  fi
+  echo "push отклонён, попытка $attempt: ребейз"
+  git pull --rebase --autostash origin "${GITHUB_REF_NAME}" || git rebase --abort || true
+  sleep $((attempt * 3))
+done
+echo "не удалось запушить лог"
+exit 0

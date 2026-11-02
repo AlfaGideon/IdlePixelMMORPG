@@ -45,6 +45,7 @@ jobs:
             chmod +x godot
           fi
           TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}"
+          LOG="/tmp/build-${GITHUB_JOB}.log"
           if [ ! -f "$TEMPLATE_DIR/android_debug.apk" ]; then
             curl -fsSL -o templates.tpz \
               "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz"
@@ -53,7 +54,9 @@ jobs:
             mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
           fi
           ls -1 "$TEMPLATE_DIR" | head -5
-          ./godot --version | tee -a /tmp/build-${{ github.job }}.log || true
+          ./godot --version 2>&1 | tee -a "$LOG" || true
+          echo "TEMPLATES: $TEMPLATE_DIR" | tee -a "$LOG"
+          ls -1 "$TEMPLATE_DIR" 2>&1 | sort | tee -a "$LOG" || true
 
       - uses: actions/setup-java@v5
         with:
@@ -86,8 +89,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-android.log
-          ~/godot/godot --headless --path client --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk 2>&1 | tee -a /tmp/build-android.log
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
+          ~/godot/godot --headless --path client --verbose --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
           ls -lh dist/
 
       - name: Проверить, что APK валиден
@@ -147,6 +150,7 @@ jobs:
             chmod +x godot
           fi
           TEMPLATE_DIR="$HOME/.local/share/godot/export_templates/${GODOT_VERSION}.${GODOT_CHANNEL}"
+          LOG="/tmp/build-${GITHUB_JOB}.log"
           if [ ! -f "$TEMPLATE_DIR/web_release.zip" ]; then
             curl -fsSL -o templates.tpz \
               "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-${GODOT_CHANNEL}/Godot_v${GODOT_VERSION}-${GODOT_CHANNEL}_export_templates.tpz"
@@ -154,14 +158,16 @@ jobs:
             unzip -q -o templates.tpz -d "$HOME/.local/share/godot/export_templates_tmp"
             mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
           fi
-          ./godot --version | tee -a /tmp/build-${{ github.job }}.log || true
+          ./godot --version 2>&1 | tee -a "$LOG" || true
+          echo "TEMPLATES: $TEMPLATE_DIR" | tee -a "$LOG"
+          ls -1 "$TEMPLATE_DIR" 2>&1 | sort | tee -a "$LOG" || true
 
       - name: Экспорт web
         run: |
           set -euo pipefail
           mkdir -p dist/web
-          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-web.log
-          ~/godot/godot --headless --path client --export-release "Web" ../dist/web/index.html 2>&1 | tee -a /tmp/build-web.log
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
+          ~/godot/godot --headless --path client --verbose --export-release "Web" ../dist/web/index.html 2>&1 | tee -a /tmp/build-${GITHUB_JOB}.log
           ls -lh dist/web
 
       - uses: actions/upload-artifact@v4
