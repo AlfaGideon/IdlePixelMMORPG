@@ -49,8 +49,8 @@ jobs:
       - name: Прогон проекта без окна
         run: bash .github/ci/smoke_test.sh "$HOME/godot/godot"
 
-      - name: Лог при падении
-        if: failure()
+      - name: Публикация лога
+        if: always()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash .github/ci/publish-log.sh
