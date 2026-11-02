@@ -565,13 +565,21 @@ func _draw_vignette() -> void:
 # --- отрисовка на экране -------------------------------------------------
 
 func _maybe_capture() -> void:
-	if OS.get_environment("BOOT_CAPTURE") != "1" or _diag_frames != 45:
+	if OS.get_environment("BOOT_CAPTURE") != "1":
 		return
-	var path := OS.get_environment("BOOT_CAPTURE_PATH")
-	if path.is_empty():
-		path = "user://boot_capture.png"
+	# три момента цикла бега — по ним видно, что кадры сменяются
+	const CAPTURE_AT := [38, 42, 46]
+	var shot := CAPTURE_AT.find(_diag_frames)
+	if shot < 0:
+		return
+	var base := OS.get_environment("BOOT_CAPTURE_PATH")
+	if base.is_empty():
+		base = "user://boot_capture.png"
+	var path := base
+	if shot > 0:
+		path = base.get_basename() + "_%d.png" % shot
 	var err := _image.save_png(path)
-	print("pixel_scene: снимок кадра -> %s (%d)" % [path, err])
+	print("pixel_scene: снимок %d -> %s (%d)" % [shot, path, err])
 
 
 func _draw() -> void:

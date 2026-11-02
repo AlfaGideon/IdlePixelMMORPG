@@ -52,3 +52,14 @@ python3 tools/check_defold_refs.py               # проверка legacy-пр�
 ```
 
 Сборка APK/Web — в GitHub Actions: локально нужны экспорт-шаблоны Godot и Android SDK/NDK.
+
+## Ассеты
+
+- `tools/make_logo.py` — собирает `client/art/logo.png`, `logo-square.png`, `icon.png`
+  из нарисованного исходника `tools/art-src/logo-source.png`;
+- `tools/make_runner.py` — рисует спрайт-лист героя `client/art/runner.png`
+  (6 кадров бега, 20×24) и превью `tools/preview/runner_sheet.png`;
+- `tools/make_assets.py` — пиксельный шрифт и остальная графика.
+
+Проверить итог без телефона: `python3 tools/make_logo.py` соберёт
+`tools/preview/boot_compose.png` — загрузочный экран со сценой и логотипом.
