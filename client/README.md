@@ -76,3 +76,19 @@ gdlint client/scripts client/ui               # линт GDScript
 python3 tools/preview_boot.py                 # превью загрузочного экрана в PNG
 python3 tools/make_assets.py                  # логотип и иконка
 ```
+
+## Проверка сцены без телефона
+
+`.github/ci/smoke_test.sh` прогоняет проект headless (`--check-only` по скриптам,
+загрузка сцены на 150 кадров) и падает на любом `SCRIPT ERROR`/`Parse Error` —
+это ловит ошибки, которые не видны `gdparse`/`gdlint` (например, переопределение
+служебного `Object._get` или невыводимый тип).
+
+На 45-м кадре сцена сохраняет себя в `client/boot_capture.png`, CI кладёт кадр в
+`ci-logs/boot_capture.png` — по нему видно, что реально рисует движок:
+
+```bash
+BOOT_CAPTURE=1 godot --headless --path client --fixed-fps 30 --quit-after 150
+```
+
+Локальный запуск того же теста: `bash .github/ci/smoke_test.sh $(which godot)`.
