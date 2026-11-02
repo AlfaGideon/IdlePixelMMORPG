@@ -315,8 +315,8 @@ func _draw_sky() -> void:
 
 
 func _draw_moon() -> void:
-	var cx := int(GRID_WIDTH * 0.775)
-	var cy := int(GRID_HEIGHT * 0.118)
+	var cx := int(GRID_WIDTH * 0.815)
+	var cy := int(GRID_HEIGHT * 0.163)
 	var r := maxi(7, int(GRID_WIDTH * 0.082))
 	for y in range(cy - r - 2, cy + r + 3):
 		for x in range(cx - r - 2, cx + r + 3):
@@ -648,7 +648,9 @@ func _draw_vignette() -> void:
 func _maybe_capture() -> void:
 	if OS.get_environment("BOOT_CAPTURE") != "1" or _diag_frames != 45:
 		return
-	var path := "res://boot_capture.png"
+	var path := OS.get_environment("BOOT_CAPTURE_PATH")
+	if path.is_empty():
+		path = "user://boot_capture.png"
 	var err := _image.save_png(path)
 	print("pixel_scene: снимок кадра -> %s (%d)" % [path, err])
 

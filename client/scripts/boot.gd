@@ -15,7 +15,9 @@ var _main_ready := false
 var _fake_progress := 0.0
 
 @onready var _scene: Control = $PixelScene
-@onready var _logo: TextureRect = get_node_or_null("Overlay/Column/Logo") as TextureRect
+@onready var _logo: TextureRect = (
+	get_node_or_null("Overlay/Column/LogoPanel/Inner/Logo") as TextureRect
+)
 
 
 func _ready() -> void:
