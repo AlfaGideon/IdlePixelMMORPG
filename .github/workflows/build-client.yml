@@ -53,19 +53,20 @@ jobs:
             mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
           fi
           ls -1 "$TEMPLATE_DIR" | head -5
-          ./godot --version
+          ./godot --version | tee -a /tmp/build-${{ github.job }}.log || true
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: "17"
 
-      - uses: android-actions/setup-android@v3
-
-      - name: Android SDK
+      - name: Android SDK (предустановлен на раннере)
         run: |
-          yes | sdkmanager --licenses > /dev/null || true
-          sdkmanager "platform-tools" "build-tools;35.0.0" "platforms;android-35"
+          set -euo pipefail
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          ls "$ANDROID_HOME"
+          ls "$ANDROID_HOME/build-tools" | tail -3
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses > /dev/null || true
 
       - name: Debug keystore
         run: |
@@ -85,8 +86,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p dist
-          ~/godot/godot --headless --path client --import || true
-          ~/godot/godot --headless --path client --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-android.log
+          ~/godot/godot --headless --path client --export-debug "Android" ../dist/IdlePixelMMORPG-debug.apk 2>&1 | tee -a /tmp/build-android.log
           ls -lh dist/
 
       - name: Проверить, что APK валиден
@@ -103,6 +104,12 @@ jobs:
           name: IdlePixelMMORPG-debug-apk
           path: dist/IdlePixelMMORPG-debug.apk
           if-no-files-found: error
+
+      - name: Лог сборки при падении
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/ci/publish-log.sh android
 
       - name: Опубликовать APK в Release
         env:
@@ -147,14 +154,14 @@ jobs:
             unzip -q -o templates.tpz -d "$HOME/.local/share/godot/export_templates_tmp"
             mv "$HOME/.local/share/godot/export_templates_tmp/templates/"* "$TEMPLATE_DIR/"
           fi
-          ./godot --version
+          ./godot --version | tee -a /tmp/build-${{ github.job }}.log || true
 
       - name: Экспорт web
         run: |
           set -euo pipefail
           mkdir -p dist/web
-          ~/godot/godot --headless --path client --import || true
-          ~/godot/godot --headless --path client --export-release "Web" ../dist/web/index.html
+          { ~/godot/godot --headless --path client --import || true; } 2>&1 | tee -a /tmp/build-web.log
+          ~/godot/godot --headless --path client --export-release "Web" ../dist/web/index.html 2>&1 | tee -a /tmp/build-web.log
           ls -lh dist/web
 
       - uses: actions/upload-artifact@v4
@@ -162,3 +169,9 @@ jobs:
           name: IdlePixelMMORPG-web
           path: dist/web
           if-no-files-found: error
+
+      - name: Лог сборки при падении
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/ci/publish-log.sh web
