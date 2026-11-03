@@ -793,10 +793,6 @@ func _draw_runner(t: float) -> void:
 	var fill_w := int((bar.size.x - 2) * clampf(progress, 0.0, 1.0))
 	var moving := progress < 0.999
 	# 12 кадров в секунду: цикл бега целиком проходится за 0.5 с
-	var index := int(t * 12.0) % RUNNER_FRAMES if moving else 0
-	# не даём герою выйти за полоску и за экран на финише
-	var px0 := clampi(bar.position.x + 1 + fill_w - RUNNER_W / 2, 2, GRID_WIDTH - RUNNER_W - 2)
-	var py0 := bar.position.y - RUNNER_H + 1
 	var index := int(t * 12.0) % _runner_count if moving else 0
 	# не даём герою выйти за полоску и за экран на финише
 	var px0 := clampi(bar.position.x + 1 + fill_w - _runner_w / 2, 2, GRID_WIDTH - _runner_w - 2)
@@ -811,7 +807,6 @@ func _draw_runner(t: float) -> void:
 	if _runner_frames.is_empty():
 		return
 	var sprite: Image = _runner_frames[mini(index, _runner_frames.size() - 1)]
-	_image.blend_rect(sprite, Rect2i(0, 0, RUNNER_W, RUNNER_H), Vector2i(px0, py0))
 	_image.blend_rect(sprite, Rect2i(0, 0, _runner_w, _runner_h), Vector2i(px0, py0))
 
 
