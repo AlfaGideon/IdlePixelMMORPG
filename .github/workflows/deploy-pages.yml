@@ -5,9 +5,10 @@ on:
     branches: [arena/58423ecd-idlepixelmmorpg]
   workflow_dispatch:
 
-# Даём GITHUB_TOKEN максимум: включение Pages «с нуля» требует прав,
-# которых нет у внешнего integration-токена Arena.
-permissions: write-all
+permissions:
+  contents: read
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -23,25 +24,56 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Enable / configure GitHub Pages
+      # GitHub не даёт integration/GITHUB_TOKEN'у СОЗДАТЬ Pages-сайт впервые
+      # ("Resource not accessible by integration"). Это одноразовый ручной шаг:
+      # Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+      # Проверяем его и не валим воркфлоу, пока переключатель не выставлен.
+      - name: Check Pages enablement
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" > /tmp/pages.json 2>/dev/null; then
+            bt=$(jq -r '.build_type // "unknown"' /tmp/pages.json)
+            if [ "$bt" = "workflow" ]; then
+              echo "enabled=true" >> "$GITHUB_OUTPUT"
+              echo "GitHub Pages: enabled, source = GitHub Actions"
+            else
+              echo "enabled=false" >> "$GITHUB_OUTPUT"
+              echo "::warning::Pages source is '$bt'. Set Settings -> Pages -> Source: GitHub Actions."
+            fi
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages is not enabled yet. One-time step: https://github.com/${GITHUB_REPOSITORY}/settings/pages -> Source: GitHub Actions."
+          fi
+
+      - name: Configure Pages
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Build static site
+        if: steps.pages.outputs.enabled == 'true'
         run: |
           mkdir -p _site
           cp index.html .nojekyll _site/
           cp -r prototype _site/
-          echo "--- site contents ---"
           find _site -type f | sort
           du -sh _site
 
       - name: Upload Pages artifact
+        if: steps.pages.outputs.enabled == 'true'
         uses: actions/upload-pages-artifact@v3
         with:
           path: _site
 
       - name: Deploy to GitHub Pages
+        if: steps.pages.outputs.enabled == 'true'
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Waiting for Pages to be enabled
+        if: steps.pages.outputs.enabled != 'true'
+        run: |
+          echo "Deploy skipped. Enable Pages once at:"
+          echo "https://github.com/${GITHUB_REPOSITORY}/settings/pages  (Source: GitHub Actions)"
+          echo "Then re-run this workflow or push to the branch."

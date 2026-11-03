@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<!-- Сгенерировано build-standalone.py из index.html: абсолютные raw.githubusercontent.com URL. -->
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IdlePixelMMORPG — прототип (standalone, внешние ссылки)</title>
+<style>
+  :root{
+    --bg:#080b14;
+    --panel:rgba(255,255,255,.045);
+    --line:rgba(255,255,255,.10);
+    --text:#eaf0ff;
+    --muted:#8d9ab5;
+    --accent:#f0a03c;
+    --accent-soft:rgba(240,160,60,.16);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%}
+  body{
+    background:
+      radial-gradient(900px 600px at 15% -10%, var(--accent-soft), transparent 65%),
+      radial-gradient(800px 600px at 95% 110%, rgba(56,214,224,.10), transparent 60%),
+      var(--bg);
+    color:var(--text);
+    font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit}
+  .wrap{max-width:1500px;margin:0 auto;padding:26px 28px 40px}
+
+  header{display:flex;flex-wrap:wrap;gap:18px;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .brand{display:flex;align-items:center;gap:14px}
+  .logo{
+    width:42px;height:42px;display:grid;place-items:center;
+    border:1px solid var(--accent);background:var(--accent-soft);
+    clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+    font-weight:800;font-size:17px;color:var(--accent);letter-spacing:-1px;
+  }
+  h1{font-size:19px;margin:0;letter-spacing:.2px;font-weight:700}
+  .brand p{margin:3px 0 0;color:var(--muted);font-size:12px}
+
+  .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .seg{display:flex;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:4px;gap:4px}
+  button{
+    font:inherit;color:var(--text);background:transparent;border:1px solid transparent;
+    border-radius:7px;padding:8px 13px;cursor:pointer;font-size:12.5px;transition:.16s;
+  }
+  button:hover{background:rgba(255,255,255,.07)}
+  button.on{background:var(--accent);color:#0a0d16;font-weight:700}
+  .ghost{background:var(--panel);border:1px solid var(--line)}
+  .ghost.on{border-color:var(--accent);color:var(--accent)}
+  .kbd{color:var(--muted);font-size:11.5px;padding-left:6px}
+
+  .layout{display:grid;grid-template-columns:210px minmax(0,1fr) 300px;gap:22px;align-items:start}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;backdrop-filter:blur(8px)}
+  .card h2{font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:var(--muted);margin:0;padding:15px 16px 10px}
+
+  /* screen list */
+  .screenlist{padding:0 8px 10px}
+  .scr{
+    width:100%;display:flex;gap:10px;align-items:center;text-align:left;
+    padding:9px;border-radius:9px;margin-bottom:3px;color:var(--muted);
+  }
+  .scr .num{font-size:10px;font-variant-numeric:tabular-nums;opacity:.7;width:18px}
+  .scr .thumb{width:34px;height:48px;border-radius:4px;object-fit:cover;border:1px solid var(--line);background:#111827;flex:none}
+  .scr .t{font-size:12px;line-height:1.3}
+  .scr .t small{display:block;color:var(--muted);opacity:.7;font-size:10px;margin-top:2px}
+  .scr.on{background:var(--accent-soft);color:var(--text);border:1px solid var(--accent)}
+  .scr:hover{background:rgba(255,255,255,.06)}
+
+  /* stage */
+  .stage{padding:14px;position:relative}
+  .stage-top{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+  .stage-title{font-size:15px;font-weight:650}
+  .stage-title span{color:var(--muted);font-weight:400;font-size:12px;margin-left:8px}
+  .navbtns{display:flex;gap:6px}
+  .navbtns button{background:var(--panel);border:1px solid var(--line);padding:6px 11px}
+
+  .phones{display:flex;gap:18px;justify-content:center;align-items:flex-start;flex-wrap:wrap}
+  .phone-wrap{flex:1 1 300px;max-width:430px;min-width:240px}
+  .phone-label{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin:0 0 8px;padding:0 2px}
+  .phone-label b{color:var(--accent);font-weight:600}
+  .phone{
+    position:relative;aspect-ratio:9/16;width:100%;border-radius:26px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.16);
+    box-shadow:0 24px 70px rgba(0,0,0,.6), 0 0 0 6px rgba(255,255,255,.03);
+    background:#111827;
+  }
+  .phone img{width:100%;height:100%;object-fit:cover;display:block;image-rendering:auto}
+  .fallback{
+    position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:26px;
+    color:var(--muted);font-size:12px;line-height:1.7;background:repeating-linear-gradient(45deg,#0d1220,#0d1220 8px,#111827 8px,#111827 16px);
+  }
+  .fallback b{display:block;color:var(--text);font-size:14px;margin-bottom:6px}
+  .phone.loaded .fallback{display:none}
+
+  .stage-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:14px;flex-wrap:wrap}
+  .dots{display:flex;gap:6px}
+  .dots i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.2);cursor:pointer}
+  .dots i.on{background:var(--accent);box-shadow:0 0 10px var(--accent)}
+  .openlink{font-size:11.5px;color:var(--accent);text-decoration:none;border-bottom:1px dashed currentColor;padding-bottom:2px}
+
+  /* info */
+  .info{padding:0 0 14px}
+  .info .block{padding:12px 16px;border-top:1px solid var(--line)}
+  .info .block:first-of-type{border-top:0}
+  .info h3{margin:0 0 6px;font-size:13px}
+  .info p{margin:0;color:var(--muted);font-size:12px;line-height:1.65}
+  .swatches{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  .swatches i{width:26px;height:26px;border-radius:6px;border:1px solid rgba(255,255,255,.16)}
+  .swatches span{font-size:10px;color:var(--muted);align-self:center;margin-left:4px;font-variant-numeric:tabular-nums}
+  ul.canon{margin:8px 0 0;padding-left:16px;color:var(--muted);font-size:11.5px;line-height:1.8}
+  ul.canon b{color:var(--text);font-weight:600}
+
+  .gridmode .phones{flex-wrap:wrap}
+  .gridmode .phone-wrap{flex:0 1 190px;max-width:190px}
+  .gridmode .phone{border-radius:14px}
+
+  footer{margin-top:24px;color:var(--muted);font-size:11.5px;line-height:1.7;border-top:1px solid var(--line);padding-top:14px}
+  footer code{background:var(--panel);padding:2px 6px;border-radius:4px;color:var(--text)}
+
+  @media(max-width:1100px){.layout{grid-template-columns:180px minmax(0,1fr)}.info{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,1fr);gap:0}.info .block{border-top:0;border-left:1px solid var(--line)}.info .block:first-child{border-left:0}}
+  @media(max-width:720px){.wrap{padding:16px}.layout{grid-template-columns:1fr}.screenlist{display:flex;overflow-x:auto;gap:6px}.scr{min-width:150px}.info{display:block}.info .block{border-left:0;border-top:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="logo">IP</div>
+      <div>
+        <h1>IdlePixelMMORPG · прототип интерфейса</h1>
+        <p>Современный HD-пиксель · 6 страниц · 2 цветокора · один канон</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="seg" id="variants">
+        <button data-v="a" class="on">A · Янтарь / индиго</button>
+        <button data-v="b">B · Аркан-неон</button>
+      </div>
+      <button class="ghost" id="compareBtn" title="Показать оба варианта рядом">Сравнить A / B</button>
+      <button class="ghost" id="gridBtn" title="Показать все страницы сразу">Все страницы</button>
+      <span class="kbd">← → — листать</span>
+    </div>
+  </header>
+
+  <div class="layout" id="layout">
+
+    <section class="card">
+      <h2>Страницы</h2>
+      <div class="screenlist" id="screenlist"></div>
+    </section>
+
+    <section class="card stage">
+      <div class="stage-top">
+        <div class="stage-title" id="stageTitle"></div>
+        <div class="navbtns">
+          <button id="prev">← Назад</button>
+          <button id="next">Вперёд →</button>
+        </div>
+      </div>
+      <div class="phones" id="phones"></div>
+      <div class="stage-foot">
+        <div class="dots" id="dots"></div>
+        <a class="openlink" id="openlink" href="#" target="_blank" rel="noopener">Открыть оригинал ↗</a>
+      </div>
+    </section>
+
+    <aside class="card info" id="info"></aside>
+
+  </div>
+
+  <footer>
+    Картинки: <code>prototype/screens/a/</code> и <code>prototype/screens/b/</code>.
+    Правила стиля и промпты: <code>prototype/STYLE_CANON.md</code>.
+    Все экраны сделаны по одному общему префиксу промпта + якорный кадр <code>01-hub.png</code>,
+    поэтому «хром» HUD, типографика, свет и плотность данных одинаковы на всех страницах.
+  </footer>
+</div>
+
+<script>
+const SCREENS = [
+  { id:'01-hub',       name:'Лагерь / Главная',      sub:'Idle-гринд, DPS, оффлайн-лут',
+    desc:'Якорный кадр прототипа. Авто-атака по тренировочному голему, летающие цифры урона, счётчик DPS с графиком, EXP-бар, кнопка BOSS и панель оффлайн-добычи с таймером 12H.' },
+  { id:'02-battle',    name:'Подземелье / Автобой',  sub:'Босс, лог боя, дроп',
+    desc:'Кинематографичный бой: отряд против босса, сегментированный HP-бар босса, криты, компактный лог автобоя, панель выпавшего сундука и ряд иконок способностей.' },
+  { id:'03-hero',      name:'Герой / Экипировка',    sub:'Paper-doll, статы, навыки',
+    desc:'Детальный персонаж в полный рост (без чиби-пропорций), 8 слотов экипировки с рамками редкости, колонка STR/AGI/INT, power score и ветка навыков с узлами +3 / MAX.' },
+  { id:'04-inventory', name:'Инвентарь / Добыча',    sub:'Сетка 6×5, редкость',
+    desc:'Сетка предметов с тонкими рамками редкости и количеством, вкладки фильтров, крупная карточка осмотра предмета со статами и сравнением, сортировка и массовая переработка.' },
+  { id:'05-map',       name:'Карта мира',            sub:'Ноды, туман войны, зоны',
+    desc:'Атмосферная карта с параллаксными слоями гор/леса/городов, ноды локаций и тонкие светящиеся тропы, открытые и закрытые зоны, панель зоны с рекомендуемой мощью и прогрессом.' },
+  { id:'06-shop',      name:'Магазин / Гильдия',     sub:'Витрина, события, валюты',
+    desc:'Широкий кинематографичный баннер события, вкладки daily / weekly, карточки предложений с ценами и угловыми кнопками покупки, прогресс вклада в гильдию и обратный отсчёт.' }
+];
+
+const VARIANTS = {
+  a: { label:'A · Эпичное HD-2D', tint:'Янтарь + индиго', accent:'#f0a03c',
+       colors:['#121a2e','#1f4a52','#3f6b4f','#f0a03c','#ffd98a','#e8e2d0'],
+       scene:'Ночные руины храма, факельный объёмный свет, рыцарь в плаще, тёплый bloom, холодные теal-тени.' },
+  b: { label:'B · Аркан-неон', tint:'Фиолет + циан', accent:'#38d6e0',
+       colors:['#0e1020','#241a4a','#38d6e0','#d851c8','#8fa2c4','#e6f4ff'],
+       scene:'Неоновая цитадель под дождём, руны-голограммы, циановый rim light, магические частицы.' }
+};
+
+let variant = 'a', idx = 0, compare = false, grid = false;
+
+const $ = s => document.querySelector(s);
+const src = (v,i) => `https://raw.githubusercontent.com/AlfaGideon/IdlePixelMMORPG/arena/58423ecd-idlepixelmmorpg/prototype/screens/${v}/${SCREENS[i].id}.png`;
+
+function applyAccent(){
+  const a = VARIANTS[variant].accent;
+  document.documentElement.style.setProperty('--accent', a);
+  document.documentElement.style.setProperty('--accent-soft', a+'22');
+}
+
+function renderList(){
+  $('#screenlist').innerHTML = SCREENS.map((s,i)=>`
+    <button class="scr ${i===idx?'on':''}" data-i="${i}">
+      <span class="num">${String(i+1).padStart(2,'0')}</span>
+      <img class="thumb" src="${src(variant,i)}" alt="" loading="lazy">
+      <span class="t">${s.name}<small>${s.sub}</small></span>
+    </button>`).join('');
+  document.querySelectorAll('.scr').forEach(b=>b.onclick=()=>{ idx=+b.dataset.i; render(); });
+}
+
+function phoneHTML(v,i){
+  const label = grid ? SCREENS[i].name : (compare ? VARIANTS[v].label : 'Экран '+(i+1)+' / '+SCREENS.length);
+  const tag   = grid ? (String(i+1).padStart(2,'0')) : (compare ? VARIANTS[v].tint : VARIANTS[v].tint);
+  return `
+    <div class="phone-wrap">
+      <div class="phone-label"><span>${label}</span><b>${tag}</b></div>
+      <div class="phone" data-v="${v}" data-i="${i}">
+        <div class="fallback"><div><b>Экран готовится</b>Кадр будет догенерирован<br>в том же каноне следующим ходом.</div></div>
+        <img src="${src(v,i)}" alt="${SCREENS[i].name} — ${VARIANTS[v].label}"
+             onload="this.parentNode.classList.add('loaded')"
+             onerror="this.remove()">
+      </div>
+    </div>`;
+}
+
+function renderPhones(){
+  let html = '';
+  if(grid){
+    html = SCREENS.map((_,i)=>phoneHTML(variant,i)).join('');
+  } else if(compare){
+    html = phoneHTML('a',idx) + phoneHTML('b',idx);
+  } else {
+    html = phoneHTML(variant,idx);
+  }
+  $('#phones').innerHTML = html;
+  $('#layout').classList.toggle('gridmode', grid);
+}
+
+function renderInfo(){
+  const v = VARIANTS[variant], s = SCREENS[idx];
+  $('#info').innerHTML = `
+    <h2>О экране</h2>
+    <div class="block">
+      <h3>${s.name}</h3>
+      <p>${s.desc}</p>
+    </div>
+    <div class="block">
+      <h3>${v.label}</h3>
+      <p>${v.scene}</p>
+      <div class="swatches">${v.colors.map(c=>`<i style="background:${c}" title="${c}"></i>`).join('')}<span>${v.tint}</span></div>
+    </div>
+    <div class="block">
+      <h3>Канон стиля</h3>
+      <ul class="canon">
+        <li><b>Современный HD-пиксель</b> — плотный 1px-пиксель, 20–30 оттенков, дитеринг</li>
+        <li><b>Взрослый арт</b> — нормальные пропорции, без чиби и без 8-бит</li>
+        <li><b>Свет</b> — объёмные лучи, bloom, rim light, туман, параллакс, DoF</li>
+        <li><b>HUD</b> — стеклянные панели, 1px-бордер, тонкий неон, микро-иконки</li>
+        <li><b>Одинаково везде</b> — 3 ресурса + LV + EXP сверху, 5 иконок снизу</li>
+        <li><b>Запрещено</b> — «покемоны», деревянные рамки, заклёпки, мультяшные кнопки</li>
+      </ul>
+    </div>`;
+}
+
+function render(){
+  applyAccent();
+  $('#stageTitle').innerHTML = compare
+    ? `Сравнение цветокоров <span>${SCREENS[idx].name}</span>`
+    : grid
+      ? `Все страницы <span>${VARIANTS[variant].label}</span>`
+      : `${SCREENS[idx].name} <span>${VARIANTS[variant].label} · ${String(idx+1).padStart(2,'0')} / ${SCREENS.length}</span>`;
+  document.querySelectorAll('#variants button').forEach(b=>b.classList.toggle('on', b.dataset.v===variant));
+  $('#compareBtn').classList.toggle('on', compare);
+  $('#gridBtn').classList.toggle('on', grid);
+  $('#dots').innerHTML = SCREENS.map((_,i)=>`<i class="${i===idx?'on':''}" data-i="${i}"></i>`).join('');
+  document.querySelectorAll('#dots i').forEach(d=>d.onclick=()=>{idx=+d.dataset.i;render();});
+  $('#openlink').href = src(variant,idx);
+  renderList(); renderPhones(); renderInfo();
+}
+
+document.querySelectorAll('#variants button').forEach(b=>b.onclick=()=>{variant=b.dataset.v;compare=false;render();});
+$('#compareBtn').onclick = ()=>{ compare=!compare; if(compare) grid=false; render(); };
+$('#gridBtn').onclick    = ()=>{ grid=!grid; if(grid) compare=false; render(); };
+$('#prev').onclick = ()=>{ idx=(idx-1+SCREENS.length)%SCREENS.length; render(); };
+$('#next').onclick = ()=>{ idx=(idx+1)%SCREENS.length; render(); };
+document.addEventListener('keydown', e=>{
+  if(e.key==='ArrowRight'){ idx=(idx+1)%SCREENS.length; render(); }
+  if(e.key==='ArrowLeft'){ idx=(idx-1+SCREENS.length)%SCREENS.length; render(); }
+  if(e.key==='a'||e.key==='A'){ variant='a'; compare=false; render(); }
+  if(e.key==='b'||e.key==='B'){ variant='b'; compare=false; render(); }
+});
+
+render();
+</script>
+</body>
+</html>
