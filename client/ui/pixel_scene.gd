@@ -807,7 +807,15 @@ func _draw_runner(t: float) -> void:
 	if _runner_frames.is_empty():
 		return
 	var sprite: Image = _runner_frames[mini(index, _runner_frames.size() - 1)]
-	_image.blend_rect(sprite, Rect2i(0, 0, _runner_w, _runner_h), Vector2i(px0, py0))
+	if _hero_class.is_empty():
+		_image.blend_rect(sprite, Rect2i(0, 0, _runner_w, _runner_h), Vector2i(px0, py0))
+		return
+	# спрайт класса: копируем только непрозрачные пиксели, фон сцены остаётся
+	for sy in _runner_h:
+		for sx in _runner_w:
+			var c := sprite.get_pixel(sx, sy)
+			if c.a > 0.4:
+				_put(px0 + sx, py0 + sy, c)
 
 
 func _draw_vignette() -> void:
