@@ -6,6 +6,8 @@ config_version=5
 
 [game]
 
+selection/required="true"
+
 player/hero_class="warrior"
 
 [application]

@@ -37,24 +37,36 @@ run_check() {
 # 1. Импорт ресурсов (создаёт .godot/ и .import)
 run_check "import" 0 timeout 180 "$GODOT" --headless --path "$PROJECT" --import
 
-# 2. Реальная загрузка проекта: 120 кадров, затем выход
+# 2. Первый запуск игрока: заставка -> выбор класса
 export BOOT_CAPTURE=1
 export BOOT_CAPTURE_PATH="$PWD/client/boot_capture.png"
+export CLASS_CAPTURE=1
+export CLASS_CAPTURE_PATH="$PWD/client/class_capture.png"
+run_check "run-fresh" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 200
+unset CLASS_CAPTURE
+unset CLASS_CAPTURE_PATH
+
+# профиль игрока: класс выбран, значит заставка ведёт сразу в игру
+PROFILE_DIR="$HOME/.local/share/godot/app_userdata/IdlePixelMMORPG"
+mkdir -p "$PROFILE_DIR"
+printf '[hero]\nclass="warrior"\ncreated=true\n' > "$PROFILE_DIR/profile.cfg"
+
+# 3. Повторный запуск: заставка -> игровой интерфейс
 export GAME_CAPTURE=1
 export GAME_CAPTURE_PATH="$PWD/client/game_capture.png"
-run_check "run" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 210
+run_check "run-returning" 1 timeout 120 "$GODOT" --headless --path "$PROJECT" --fixed-fps 30 --quit-after 220
 unset BOOT_CAPTURE
 unset BOOT_CAPTURE_PATH
 unset GAME_CAPTURE
 unset GAME_CAPTURE_PATH
 
-# 3. Отдельно проверим, что скрипты компилируются (--check-only)
-for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/kit.gd; do
+# 4. Отдельно проверим, что скрипты компилируются (--check-only)
+for script in client/scripts/boot.gd client/ui/pixel_scene.gd client/ui/game_hud.gd client/ui/class_select.gd; do
   run_check "check $script" 1 timeout 60 "$GODOT" --headless --path "$PROJECT" --check-only --script "res://${script#client/}"
 done
 
-# 4. Сцена должна реально стартовать и нарисовать кадр
-for marker in "boot: старт" "pixel_scene: первый кадр" "game_hud: снимок интерфейса"; do
+# 5. Сцена должна реально стартовать и нарисовать кадр
+for marker in "boot: старт" "pixel_scene: первый кадр" "class_select: снимок экрана выбора" "game_hud: снимок интерфейса"; do
   if grep -q "$marker" "$LOG"; then
     echo "OK: $marker"
   else

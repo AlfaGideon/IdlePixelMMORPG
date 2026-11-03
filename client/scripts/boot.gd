@@ -6,6 +6,8 @@ extends Control
 ## По завершении главная сцена подменяет загрузочную.
 
 const MAIN_SCENE := "res://main.tscn"
+const CLASS_SELECT_SCENE := "res://class_select.tscn"
+const PROFILE_PATH := "user://profile.cfg"
 ## Минимальное время показа: на быстром устройстве экран не должен мигать.
 const MIN_SHOW_TIME := 2.2
 
@@ -61,5 +63,17 @@ func _go_to_main() -> void:
 	if not _main_ready:
 		return
 	set_process(false)
+	var target := CLASS_SELECT_SCENE if _needs_class_selection() else MAIN_SCENE
+	if target != MAIN_SCENE:
+		print("boot: класс не выбран — открываю выбор")
+		get_tree().change_scene_to_file(target)
+		return
 	var packed: PackedScene = ResourceLoader.load_threaded_get(MAIN_SCENE)
 	get_tree().change_scene_to_packed(packed)
+
+
+func _needs_class_selection() -> bool:
+	var cfg := ConfigFile.new()
+	if cfg.load(PROFILE_PATH) != OK:
+		return true
+	return not bool(cfg.get_value("hero", "created", false))
