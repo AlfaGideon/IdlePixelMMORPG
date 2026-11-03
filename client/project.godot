@@ -4,6 +4,13 @@
 
 config_version=5
 
+<<<<<<< HEAD
+=======
+[game]
+
+player/hero_class="warrior"
+
+>>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 [application]
 
 config/name="IdlePixelMMORPG"
