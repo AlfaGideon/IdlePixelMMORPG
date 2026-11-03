@@ -3,30 +3,727 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="refresh" content="0; url=prototype/index.html">
-<title>IdlePixelMMORPG — прототип интерфейса</title>
+<title>IdlePixelMMORPG — интерактивный прототип</title>
 <style>
-  :root{color-scheme:dark}
-  body{margin:0;min-height:100vh;display:grid;place-items:center;background:#080b14;color:#eaf0ff;
-       font:15px/1.6 ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;text-align:center}
-  .box{max-width:520px;padding:32px}
-  h1{font-size:20px;margin:0 0 8px}
-  p{color:#8d9ab5;margin:0 0 20px}
-  a{display:inline-block;padding:11px 20px;border:1px solid #f0a03c;border-radius:9px;
-    color:#f0a03c;text-decoration:none;font-weight:600}
-  a:hover{background:rgba(240,160,60,.12)}
-  .spin{width:26px;height:26px;margin:0 auto 22px;border:2px solid rgba(255,255,255,.15);
-        border-top-color:#f0a03c;border-radius:50%;animation:s 1s linear infinite}
-  @keyframes s{to{transform:rotate(360deg)}}
+:root{
+  --accent:#f0a03c; --accent2:#38d6e0; --bg:#070b14;
+  --panel:rgba(9,15,28,.90); --line:rgba(255,255,255,.11);
+  --text:#e9f0ff; --muted:#8d9ab5;
+  --gold:#ffd98a; --gem:#7fd8ff; --energy:#7cc36a;
+  --common:#7d8ba8; --rare:#38a9ff; --epic:#c56bff; --legendary:#f0a03c;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:radial-gradient(900px 600px at 12% -10%,rgba(240,160,60,.09),transparent 62%),
+      radial-gradient(800px 600px at 92% 108%,rgba(56,214,224,.08),transparent 60%),var(--bg);
+  color:var(--text);font-family:ui-sans-serif,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+.page{max-width:1300px;margin:0 auto;padding:16px 20px 26px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:14px}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{width:40px;height:40px;display:grid;place-items:center;border:1px solid var(--accent);
+  background:rgba(240,160,60,.10);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  font:800 15px ui-monospace,monospace;color:var(--accent)}
+h1{margin:0;font-size:16px;letter-spacing:.2px}
+.sub{margin:3px 0 0;font-size:11px;color:var(--muted)}
+.live{display:inline-flex;align-items:center;gap:5px;margin-left:8px;font-size:9.5px;color:var(--energy);letter-spacing:1px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--energy);box-shadow:0 0 8px var(--energy);animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.ctrls{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.seg{display:flex;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+button{font:inherit;cursor:pointer;color:var(--text);background:rgba(255,255,255,.05);border:1px solid var(--line);
+  border-radius:7px;padding:7px 11px;font-size:11px;letter-spacing:.3px;transition:.15s}
+button:hover{border-color:var(--accent);color:var(--accent)}
+button.on{background:var(--accent);color:#07101c;border-color:var(--accent);font-weight:700}
+button:disabled{opacity:.32;cursor:not-allowed}
+button:disabled:hover{border-color:var(--line);color:var(--text)}
+.layout{display:grid;grid-template-columns:225px minmax(0,1fr) 250px;gap:18px;align-items:start}
+.side{background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:13px;padding:13px;font-size:11px;color:var(--muted);line-height:1.75}
+.side h2{font-size:10px;letter-spacing:1.4px;text-transform:uppercase;color:var(--text);margin:0 0 9px}
+.side ul{margin:0;padding-left:15px}
+.side li{margin-bottom:5px}
+.side b{color:var(--text);font-weight:600}
+kbd{display:inline-block;background:rgba(255,255,255,.08);border:1px solid var(--line);border-radius:4px;padding:0 5px;
+  font:10px ui-monospace,monospace;color:var(--text)}
+#logList{max-height:520px;overflow:auto;font-size:10px;line-height:1.5}
+.logline{display:flex;gap:6px;padding:4px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.logline time{color:#5f6d88;font:9px ui-monospace,monospace;flex:none}
+.logline.gold span{color:var(--gold)} .logline.battle span{color:var(--accent)}
+.logline.item span{color:var(--rare)} .logline.err span{color:#ff7b7b}
+.phone-col{display:flex;justify-content:center}
+.app{position:relative;width:min(100%,430px);aspect-ratio:9/16;max-height:88vh;overflow:hidden;
+  border-radius:22px;border:1px solid rgba(255,255,255,.16);background:#080d18;
+  box-shadow:0 26px 80px rgba(0,0,0,.65),0 0 0 6px rgba(255,255,255,.025)}
+@media(max-height:900px){.app{width:min(100%,calc(88vh * 9 / 16))}}
+.art{position:absolute;inset:0;background-size:100% 100%;background-position:center;
+  filter:brightness(.52) saturate(1.25);transition:background-image .25s}
+.art-shade{position:absolute;inset:0;background:
+  linear-gradient(180deg,rgba(5,9,18,.96) 0%,rgba(5,9,18,.30) 17%,rgba(5,9,18,.28) 76%,rgba(5,9,18,.96) 100%),
+  radial-gradient(circle at 50% 46%,transparent 30%,rgba(4,7,14,.55) 100%)}
+.hud-top{position:absolute;top:0;left:0;right:0;z-index:3;padding:8px 9px 9px;
+  background:linear-gradient(180deg,rgba(5,9,18,.98),rgba(5,9,18,.90));border-bottom:1px solid var(--line)}
+.hud-row{display:flex;gap:5px;align-items:center}
+.lv{flex:none;width:46px;height:44px;display:grid;place-items:center;line-height:1.05;
+  border:1px solid var(--accent);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);
+  background:rgba(240,160,60,.10);font:9px ui-monospace,monospace;color:var(--muted)}
+.lv b{font-size:15px;color:var(--accent)}
+.cap{flex:1;min-width:0;display:flex;align-items:center;gap:5px;padding:6px 6px;border:1px solid var(--line);
+  border-radius:7px;background:rgba(255,255,255,.035);font:10px ui-monospace,monospace}
+.cap .g{font-size:12px;flex:none}.cap b{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cap .plus{margin-left:auto;color:var(--muted);font-style:normal;font-size:11px}
+.exp{display:flex;align-items:center;gap:6px;margin-top:7px;font:9px ui-monospace,monospace;color:var(--muted)}
+.exp b{font-weight:500;white-space:nowrap}
+.barwrap{display:block;flex:1;min-width:0}
+.bar{display:flex;gap:2px;height:9px;width:100%}
+.bar i{flex:1;background:rgba(255,255,255,.10);border-radius:1px}
+.bar i.on{background:var(--barc);box-shadow:0 0 5px var(--barc)}
+.content{position:absolute;top:99px;bottom:70px;left:0;right:0;z-index:2;overflow-y:auto;
+  padding:11px 11px 16px;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:9px;
+  backdrop-filter:blur(7px)}
+.panel h3{margin:0 0 8px;font-size:10.5px;letter-spacing:.9px;text-transform:uppercase;color:var(--text);
+  display:flex;justify-content:space-between;align-items:center;gap:6px}
+.panel h3 .tag{font:9px ui-monospace,monospace;color:var(--muted);letter-spacing:0;text-transform:none}
+.hintline{font-size:10px;color:var(--muted);line-height:1.6}
+.big{font:700 19px ui-monospace,monospace;color:var(--accent);letter-spacing:.5px}
+.btn{font-size:10.5px;padding:8px 10px;width:100%;text-align:center}
+.btn.primary{background:var(--accent);color:#07101c;border-color:var(--accent);font-weight:700}
+.btn.primary:hover{filter:brightness(1.12);color:#07101c}
+.btn.mini{width:auto;padding:5px 9px;font-size:9.5px}
+.row{display:flex;gap:6px;align-items:center}.row>*{min-width:0}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tabs{display:flex;gap:5px;margin-bottom:9px;flex-wrap:wrap}
+.tabs button{flex:1;padding:6px 4px;font-size:9.5px}
+.clickable{cursor:pointer;transition:.15s}
+.clickable:hover{border-color:var(--accent);box-shadow:0 0 0 1px rgba(240,160,60,.25) inset}
+.enemy{height:112px;display:grid;place-items:center;position:relative;border:1px dashed rgba(255,255,255,.13);
+  border-radius:8px;margin-bottom:9px;background:radial-gradient(circle at 50% 55%,rgba(240,160,60,.10),transparent 70%)}
+.enemy-sigil{font-size:50px;color:var(--accent);text-shadow:0 0 24px currentColor;animation:pulse 2.4s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.09);opacity:.8}}
+.enemy-hint{position:absolute;bottom:6px;font:8.5px ui-monospace,monospace;letter-spacing:1.2px;color:var(--muted)}
+.spark{display:flex;align-items:flex-end;gap:2px;height:36px;margin-top:7px}
+.spark i{flex:1;min-height:2px;background:var(--accent2);opacity:.8;border-radius:1px 1px 0 0}
+.kv{display:flex;justify-content:space-between;gap:8px;font:10px ui-monospace,monospace;padding:3px 0;color:var(--muted)}
+.kv b{color:var(--text);font-weight:600}
+.hud-bottom{position:absolute;bottom:0;left:0;right:0;height:70px;z-index:3;display:flex;
+  background:rgba(5,9,18,.98);border-top:1px solid var(--line)}
+.navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  border:0;border-right:1px solid rgba(255,255,255,.05);border-radius:0;background:transparent;
+  color:var(--muted);font-size:8px;padding:0}
+.navbtn .ic{font-size:19px;line-height:1}
+.navbtn:hover{color:var(--accent);background:rgba(255,255,255,.04)}
+.navbtn.on{color:var(--accent);background:rgba(240,160,60,.09);box-shadow:inset 0 2px 0 var(--accent)}
+.fx{position:absolute;inset:0;pointer-events:none;z-index:6}
+.float{position:absolute;font:700 15px ui-monospace,monospace;color:var(--gold);text-shadow:0 0 10px currentColor;
+  animation:floatUp .95s ease-out forwards;white-space:nowrap}
+.float.crit{font-size:19px;color:#ff8f6b}
+@keyframes floatUp{from{transform:translate(-50%,0);opacity:1}to{transform:translate(-50%,-72px);opacity:0}}
+.toast{position:absolute;top:106px;left:50%;transform:translateX(-50%);z-index:8;max-width:82%;
+  padding:8px 14px;border:1px solid var(--accent);border-radius:8px;background:rgba(8,14,26,.96);
+  color:var(--accent);font:10.5px ui-monospace,monospace;text-align:center;opacity:0;pointer-events:none;
+  transition:.22s;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(6px)}
+.invgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.slot{aspect-ratio:1;border:1px solid var(--line);border-radius:6px;background:rgba(255,255,255,.035);
+  display:grid;place-items:center;position:relative;cursor:pointer;font-size:17px;color:var(--text);padding:0}
+.slot:hover{border-color:var(--accent)}
+.slot.empty{opacity:.28;cursor:default}
+.slot.sel{box-shadow:0 0 0 2px var(--accent) inset;border-color:var(--accent)}
+.slot[data-r="rare"]{border-color:var(--rare)} .slot[data-r="epic"]{border-color:var(--epic)}
+.slot[data-r="legendary"]{border-color:var(--legendary)}
+.qty{position:absolute;right:2px;bottom:1px;font:8px ui-monospace,monospace;color:var(--muted)}
+.detail{border-color:var(--accent)}
+.rar{font:9px ui-monospace,monospace;letter-spacing:1px}
+.eq{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.eqslot{aspect-ratio:1;border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.035);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px}
+.eqslot .g{font-size:19px;line-height:1;color:var(--accent)}
+.eqslot .l{font-size:7.5px;color:var(--muted);text-align:center;line-height:1.2}
+.eqslot.filled{border-color:var(--accent2)}
+.sknode{border:1px solid var(--line);border-radius:7px;background:rgba(255,255,255,.035);padding:7px 4px;
+  text-align:center;font-size:9px;line-height:1.35}
+.sknode .g{font-size:18px;color:var(--accent);display:block}
+.sknode .lv{width:auto;height:auto;clip-path:none;background:none;border:0;display:block;
+  font:9px ui-monospace,monospace;color:var(--muted)}
+.sknode.max{border-color:var(--legendary)}
+.combatlog{height:96px;overflow:auto;font:9px ui-monospace,monospace;line-height:1.6;color:var(--muted);
+  background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:7px;padding:6px}
+.combatlog div{border-bottom:1px solid rgba(255,255,255,.04);padding:1px 0}
+.map{position:relative;height:270px;border:1px solid var(--line);border-radius:9px;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,rgba(56,214,224,.09),rgba(4,8,16,.75) 70%)}
+.maplines{position:absolute;inset:0;width:100%;height:100%}
+.znode{position:absolute;transform:translate(-50%,-50%);width:32px;height:32px;border-radius:50%;
+  border:1px solid var(--line);background:rgba(9,16,30,.94);color:var(--muted);font-size:14px;
+  display:grid;place-items:center;padding:0;z-index:2}
+.znode.unlocked{color:var(--accent);border-color:var(--accent)}
+.znode.current{box-shadow:0 0 0 3px rgba(240,160,60,.20);background:rgba(240,160,60,.16)}
+.znode.sel{border-color:var(--accent2);color:var(--accent2)}
+.znode:hover{border-color:var(--accent)}
+.offer{border:1px solid var(--line);border-radius:8px;background:rgba(255,255,255,.035);padding:8px;text-align:center}
+.offer .g{font-size:24px;color:var(--accent);display:block;margin-bottom:4px}
+.offer .n{font-size:9.5px;line-height:1.3;min-height:25px}
+.offer .p{font:10px ui-monospace,monospace;color:var(--gold);margin:5px 0}
+.offer button{width:100%;padding:5px;font-size:9px}
+.mini-note{font:9px ui-monospace,monospace;color:var(--muted);margin-top:6px;line-height:1.5}
+footer{margin-top:18px;border-top:1px solid var(--line);padding-top:12px;color:var(--muted);font-size:11px;line-height:1.7}
+footer code{background:rgba(255,255,255,.06);padding:2px 6px;border-radius:4px;color:var(--text)}
+@media(max-width:1080px){.layout{grid-template-columns:1fr}.side{display:none}}
+@media(max-width:520px){.page{padding:10px}.app{width:100%;max-height:none;aspect-ratio:auto;height:calc(100vh - 92px);border-radius:14px}.topbar{margin-bottom:8px}}
 </style>
 </head>
 <body>
-  <div class="box">
-    <div class="spin"></div>
-    <h1>IdlePixelMMORPG</h1>
-    <p>Открываю прототип интерфейса…</p>
-    <a href="prototype/index.html">Открыть прототип вручную</a>
+<div class="page">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo">IP</div>
+      <div>
+        <h1>IdlePixelMMORPG · интерактивный прототип <span class="live"><i></i>LIVE</span></h1>
+        <p class="sub">Кликабельная idle-игра: инвентарь, экипировка, навыки, бой, карта, магазин</p>
+      </div>
+    </div>
+    <div class="ctrls">
+      <div class="seg">
+        <button data-act="variant" data-v="a">A · Янтарь</button>
+        <button data-act="variant" data-v="b">B · Неон</button>
+      </div>
+      <button data-act="reset">Сброс прогресса</button>
+      <a href="prototype/index.html" style="font-size:10.5px;color:var(--muted);text-decoration:none;border-bottom:1px dashed">Галерея скриншотов</a>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="side">
+      <h2>Что можно кликать</h2>
+      <ul>
+        <li><b>Лагерь</b> — бейте голема, включайте авто-атаку, забирайте оффлайн-лут, вызывайте босса</li>
+        <li><b>Инвентарь</b> — предмет → надеть / продать / распылить, фильтры, сортировка</li>
+        <li><b>Герой</b> — слоты экипировки, надевание предметов, узлы навыков за очки</li>
+        <li><b>Бой</b> — 3 способности с расходом энергии, лог, лут после победы</li>
+        <li><b>Карта</b> — ноды зон, открытие за золото, вход в зону меняет босса</li>
+        <li><b>Магазин</b> — покупки за золото/кристаллы, вклад в гильдию</li>
+      </ul>
+      <h2 style="margin-top:14px">Клавиши</h2>
+      <div><kbd>1</kbd>…<kbd>6</kbd> — экраны · <kbd>Space</kbd> — удар · <kbd>A</kbd>/<kbd>B</kbd> — цветокор</div>
+      <div class="mini-note">Прогресс сохраняется в localStorage и не сбрасывается при перезагрузке.</div>
+    </aside>
+
+    <div class="phone-col">
+      <div class="app" id="app">
+        <div class="art" id="art"></div>
+        <div class="art-shade"></div>
+        <div class="hud-top" id="hudTop"></div>
+        <div class="content" id="content"></div>
+        <div class="hud-bottom" id="nav"></div>
+        <div class="fx" id="fx"></div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+
+    <aside class="side">
+      <h2>Журнал событий</h2>
+      <div id="logList"></div>
+    </aside>
   </div>
-  <script>location.replace('prototype/index.html');</script>
+
+  <footer>
+    Это не скриншоты: весь HUD, предметы, кнопки и состояния — живой DOM с общим состоянием и idle-циклом.
+    Фоны сцен — сгенерированные кадры из <code>prototype/screens/{a|b}/</code>, канон стиля в
+    <code>prototype/STYLE_CANON.md</code>. Варианты A/B меняют только палитру и арт, механика одинакова.
+  </footer>
+</div>
+
+<script>
+/* === БАЗА === */
+const ART_BASE = 'prototype/screens'; // STANDALONE_BASE
+const SAVE = 'ipmmorpg_proto_v3';
+const q = s => document.querySelector(s);
+const V = {
+  a:{label:'A · Янтарь / индиго',accent:'#f0a03c',accent2:'#38d6e0',dir:'a'},
+  b:{label:'B · Аркан-неон',accent:'#38d6e0',accent2:'#d851c8',dir:'b'}
+};
+const ART = {hub:'01-hub.png',battle:'02-battle.png',hero:'03-hero.png',inventory:'04-inventory.png',map:'05-map.png',shop:'06-shop.png'};
+const NAV = [['hub','◆','Лагерь'],['battle','⚔','Бой'],['hero','⛨','Герой'],['inventory','▣','Инвент.'],['map','◈','Карта'],['shop','✦','Магазин']];
+const RAR = {common:{l:'ОБЫЧНОЕ',c:'var(--common)'},rare:{l:'РЕДКОЕ',c:'var(--rare)'},
+  epic:{l:'ЭПИЧЕСКОЕ',c:'var(--epic)'},legendary:{l:'ЛЕГЕНДАРНОЕ',c:'var(--legendary)'}};
+const SLOT = {weapon:'Оружие',offhand:'Вт. рука',helm:'Шлем',chest:'Доспех',boots:'Сапоги',ring:'Кольцо',amulet:'Амулет',cape:'Плащ'};
+const SLOTS = Object.keys(SLOT);
+
+const ITEMS = [
+  {id:'shadow_sword',n:'Теневое лезвие',slot:'weapon',r:'epic',g:'⚔',pow:420,price:180000,desc:'+12% к урону в тени руин.'},
+  {id:'rune_glaive',n:'Руническая глефа',slot:'weapon',r:'legendary',g:'✦',pow:980,price:640000,desc:'Пробивает броню големов.'},
+  {id:'aegis',n:'Аркан-эгида',slot:'offhand',r:'rare',g:'⬡',pow:210,price:96000,desc:'Поглощает часть урона босса.'},
+  {id:'ward_helm',n:'Шлем стража',slot:'helm',r:'rare',g:'⛨',pow:180,price:74000,desc:'Руническая защита головы.'},
+  {id:'ruin_plate',n:'Панцирь руин',slot:'chest',r:'epic',g:'▣',pow:360,price:210000,desc:'Кованый панцирь древнего ордена.'},
+  {id:'wander_boots',n:'Сапоги скитальца',slot:'boots',r:'common',g:'⌁',pow:95,price:12000,desc:'Лёгкие, но уже поношенные.'},
+  {id:'focus_ring',n:'Кольцо фокуса',slot:'ring',r:'legendary',g:'◉',pow:520,price:390000,desc:'+критический урон способностей.'},
+  {id:'golem_amulet',n:'Амулет голема',slot:'amulet',r:'rare',g:'◇',pow:165,price:68000,desc:'Ускоряет регенерацию энергии.'},
+  {id:'ash_cape',n:'Плащ пепла',slot:'cape',r:'epic',g:'☄',pow:300,price:175000,desc:'Скрывает от дозоров цитадели.'},
+  {id:'shard',n:'Осколок руны',slot:null,r:'common',g:'✧',pow:0,price:900,desc:'Материал для распыления.',mat:true},
+  {id:'core',n:'Энергоядро',slot:null,r:'rare',g:'◈',pow:0,price:4500,desc:'Восстанавливает заряды.',mat:true},
+  {id:'token',n:'Жетон гильдии',slot:null,r:'rare',g:'⌘',pow:0,price:2200,desc:'Взнос в казну гильдии.',mat:true},
+  {id:'scroll',n:'Свиток героя',slot:null,r:'epic',g:'▤',pow:0,price:9800,desc:'Даёт опыт при использовании.',mat:true},
+  {id:'booster',n:'Усилитель EXP',slot:null,r:'epic',g:'✚',pow:0,price:7600,desc:'Ускоряет прокачку.',mat:true}
+];
+const item = id => ITEMS.find(x=>x.id===id) || {n:'?',r:'common',g:'?',pow:0,price:0,desc:'',slot:null};
+
+const ZONES = [
+  {n:'Лагерь ремесленника',x:16,y:76,req:0,cost:0,power:0,prog:100,enemy:'Тренировочный голем',hp:6000000,rw:'2.35M золота'},
+  {n:'Мшистые руины',x:34,y:60,req:120,cost:0,power:2000,prog:78,enemy:'Древний голем',hp:9000000,rw:'Рунический осколок'},
+  {n:'Храм пепла',x:56,y:68,req:128,cost:1500000,power:2400,prog:42,enemy:'Страж пепла',hp:12000000,rw:'Эпический доспех'},
+  {n:'Теневая роща',x:70,y:44,req:132,cost:4200000,power:3100,prog:18,enemy:'Теневой друид',hp:15000000,rw:'Легендарное кольцо'},
+  {n:'Аркан-цитадель',x:44,y:28,req:138,cost:9800000,power:4200,prog:4,enemy:'Аркан-варден ZVA',hp:21000000,rw:'Руническая глефа'},
+  {n:'Разлом миров',x:18,y:20,req:145,cost:24000000,power:5600,prog:0,enemy:'Пожиратель разлома',hp:30000000,rw:'Легендарный артефакт'}
+];
+
+const OFFERS = {
+  daily:[
+    {item:'shadow_sword',qty:1,cur:'gold',price:1000000,g:'⚔',n:'Теневое лезвие I'},
+    {item:'shard',qty:50,cur:'gems',price:50,g:'✧',n:'Осколки руны ×50'},
+    {item:'booster',qty:1,cur:'gems',price:500,g:'✚',n:'Усилитель EXP'},
+    {item:'core',qty:10,cur:'gold',price:120000,g:'◈',n:'Энергоядра ×10'},
+    {item:'token',qty:5,cur:'gold',price:100000,g:'⌘',n:'Жетоны гильдии ×5'},
+    {item:'scroll',qty:1,cur:'gems',price:750,g:'▤',n:'Свиток героя'}
+  ],
+  weekly:[
+    {item:'rune_glaive',qty:1,cur:'gems',price:2400,g:'✦',n:'Руническая глефа'},
+    {item:'focus_ring',qty:1,cur:'gems',price:1800,g:'◉',n:'Кольцо фокуса'},
+    {item:'ruin_plate',qty:1,cur:'gold',price:4800000,g:'▣',n:'Панцирь руин'},
+    {item:'ash_cape',qty:1,cur:'gold',price:3600000,g:'☄',n:'Плащ пепла'},
+    {item:'aegis',qty:1,cur:'gold',price:2200000,g:'⬡',n:'Аркан-эгида'},
+    {item:'shard',qty:300,cur:'gems',price:900,g:'✧',n:'Осколки руны ×300'}
+  ]
+};
+const SKILLS = [
+  {n:'Острая сталь',g:'⚔',d:'+120 к мощи'}, {n:'Рунический удар',g:'✦',d:'+120 к мощи'},
+  {n:'Стойкость',g:'⛨',d:'+120 к мощи'}, {n:'Скорость',g:'⌁',d:'+120 к мощи'},
+  {n:'Кристаллы',g:'◈',d:'+120 к мощи'}, {n:'Пепел',g:'☄',d:'+120 к мощи'}
+];
+const ABILITIES = [
+  {n:'Удар',g:'⚔',cost:10,mult:8}, {n:'Руна',g:'✦',cost:20,mult:14}, {n:'Разлом',g:'☄',cost:30,mult:22}
+];
+
+/* === СОСТОЯНИЕ === */
+function defState(){
+  const inv = [
+    ['shard',42],['core',12],['token',8],['scroll',3],['booster',2],['wander_boots',1],
+    ['aegis',1],['ward_helm',1],['ruin_plate',1],['golem_amulet',1],['ash_cape',1],
+    ['shadow_sword',1],['rune_glaive',1],['focus_ring',1],['shard',18],['core',4],
+    ['token',3],['scroll',1],['booster',1],['wander_boots',2],['aegis',1],['ward_helm',1],
+    ['shard',7],['core',2]
+  ].map((p,i)=>({uid:'i'+(i+1),id:p[0],qty:p[1]}));
+  return {
+    variant:'a',screen:'hub',auto:true,
+    gold:28540000,gems:8620,energy:76,energyMax:120,
+    level:128,exp:327860,expMax:512000,skillPoints:5,
+    offline:11*3600+58*60+12,offlineReady:true,
+    inventory:inv,nextUid:25,
+    equipped:{weapon:'shadow_sword',offhand:null,helm:'ward_helm',chest:'ruin_plate',
+      boots:'wander_boots',ring:null,amulet:null,cape:'ash_cape'},
+    skills:[1,2,0,1,0,2],
+    zones:[true,true,false,false,false,false],currentZone:1,selZone:1,
+    filter:'all',sort:'default',selItem:null,eqSlot:null,shopTab:'daily',
+    guild:5432,guildMax:10000,
+    battle:null,dummyHp:6200000,dummyMax:8500000,
+    spark:Array.from({length:24},()=>30+Math.random()*55),
+    events:[],timer:23*3600+59*60+12,ticks:0
+  };
+}
+let S = load();
+function load(){
+  try{const raw=localStorage.getItem(SAVE);if(raw)return Object.assign(defState(),JSON.parse(raw));}catch(e){}
+  return defState();
+}
+function save(){try{localStorage.setItem(SAVE,JSON.stringify(S));}catch(e){}}
+
+/* === ХЕЛПЕРЫ === */
+function fmt(n){
+  n=Math.round(n||0);
+  if(n>=1e9)return (n/1e9).toFixed(2)+'B';
+  if(n>=1e6)return (n/1e6).toFixed(2)+'M';
+  if(n>=1e4)return (n/1e3).toFixed(1)+'K';
+  return n.toLocaleString('ru-RU');
+}
+function clock(s){s=Math.max(0,Math.floor(s));const p=x=>String(x).padStart(2,'0');
+  return p(Math.floor(s/3600))+':'+p(Math.floor(s%3600/60))+':'+p(s%60);}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function power(){let p=2380;SLOTS.forEach(s=>{const id=S.equipped[s];if(id)p+=item(id).pow||0;});
+  S.skills.forEach(l=>p+=l*120);return p;}
+function dps(){return Math.round(power()*520);}
+function barHTML(v,m,n,c){const on=Math.max(0,Math.min(n,Math.round((v/(m||1))*n)));
+  return '<span class="bar" style="--barc:'+c+'">'+Array.from({length:n},(_,i)=>'<i class="'+(i<on?'on':'')+'"></i>').join('')+'</span>';}
+function liveBar(k){return '<span class="barwrap" data-livebar="'+k+'"></span>';}
+function addItem(id,qty){
+  const d=item(id),ex=S.inventory.find(x=>x.id===id&&d.mat);
+  if(ex)ex.qty+=qty; else S.inventory.push({uid:'i'+(S.nextUid++),id:id,qty:qty});
+}
+function findItem(uid){return S.inventory.find(x=>x.uid===uid);}
+function removeItem(uid){S.inventory=S.inventory.filter(x=>x.uid!==uid);if(S.selItem===uid)S.selItem=null;}
+function toast(msg){const t=q('#toast');if(!t)return;t.textContent=msg;t.classList.add('show');
+  clearTimeout(window.__tt);window.__tt=setTimeout(()=>t.classList.remove('show'),2200);}
+function log(msg,kind){const t=new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  S.events.unshift({t,msg,kind:kind||'info'});if(S.events.length>40)S.events.pop();renderLog();}
+function renderLog(){const el=q('#logList');if(!el)return;
+  el.innerHTML=S.events.map(e=>'<div class="logline '+e.kind+'"><time>'+e.t+'</time><span>'+esc(e.msg)+'</span></div>').join('');}
+function floatNumber(text,crit){const fx=q('#fx');if(!fx)return;
+  const d=document.createElement('div');d.className='float'+(crit?' crit':'');d.textContent=(crit?'КРИТ ':'')+text;
+  d.style.left=(38+Math.random()*24)+'%';d.style.top=(44+Math.random()*14)+'%';
+  fx.appendChild(d);setTimeout(()=>d.remove(),960);}
+
+/* === РЕНДЕР === */
+function setTheme(){const v=V[S.variant];document.documentElement.style.setProperty('--accent',v.accent);
+  document.documentElement.style.setProperty('--accent2',v.accent2);}
+function setArt(){const a=q('#art');if(a)a.style.backgroundImage='url("'+ART_BASE+'/'+V[S.variant].dir+'/'+ART[S.screen]+'")';}
+function renderHUD(){
+  q('#hudTop').innerHTML=
+    '<div class="hud-row">'+
+      '<div class="lv"><span>LV</span><b data-live="lv">—</b></div>'+
+      '<div class="cap"><span class="g" style="color:var(--gold)">◉</span><b data-live="gold">—</b></div>'+
+      '<div class="cap"><span class="g" style="color:var(--gem)">◆</span><b data-live="gems">—</b><i class="plus">+</i></div>'+
+      '<div class="cap"><span class="g" style="color:var(--energy)">⚡</span><b data-live="energy">—</b><i class="plus">+</i></div>'+
+    '</div>'+
+    '<div class="exp"><span>EXP</span>'+liveBar('exp')+'<b data-live="exp">—</b></div>';
+}
+function renderNav(){
+  q('#nav').innerHTML=NAV.map(([id,ic,l])=>
+    '<button class="navbtn '+(S.screen===id?'on':'')+'" data-act="nav" data-screen="'+id+'">'+
+    '<span class="ic">'+ic+'</span><span>'+l+'</span></button>').join('');
+}
+function updateLive(){
+  const set=(k,v)=>document.querySelectorAll('[data-live="'+k+'"]').forEach(e=>e.textContent=v);
+  set('gold',fmt(S.gold));set('gems',fmt(S.gems));set('energy',S.energy+'/'+S.energyMax);
+  set('lv',S.level);set('exp',fmt(S.exp)+' / '+fmt(S.expMax));set('dps',fmt(dps()));
+  set('power',fmt(power()));set('sp',S.skillPoints);set('guild',fmt(S.guild)+' / '+fmt(S.guildMax));
+  set('timer',clock(S.timer));set('offline',clock(S.offline));
+  set('dummyhp',fmt(Math.max(0,S.dummyHp))+' / '+fmt(S.dummyMax));
+  const b=S.battle;
+  set('bosshp',fmt(Math.max(0,b?b.hp:0))+' / '+fmt(b?b.max:1));
+  set('playerhp',Math.round(b?b.playerHp:100)+'%');
+  const bars={
+    exp:()=>barHTML(S.exp,S.expMax,20,'var(--accent2)'),
+    dummy:()=>barHTML(S.dummyHp,S.dummyMax,24,'var(--accent)'),
+    boss:()=>barHTML(b?b.hp:0,b?b.max:1,24,'var(--accent)'),
+    player:()=>barHTML(b?b.playerHp:0,100,24,'#7cc36a'),
+    guild:()=>barHTML(S.guild,S.guildMax,24,'var(--accent)'),
+    zone:()=>barHTML(ZONES[S.selZone].prog,100,20,'var(--accent2)')
+  };
+  document.querySelectorAll('[data-livebar]').forEach(e=>{const f=bars[e.dataset.livebar];if(f)e.innerHTML=f();});
+}
+function updateSpark(){const el=q('#spark');if(!el)return;
+  el.innerHTML=S.spark.map(v=>'<i style="height:'+Math.max(3,Math.min(100,v))+'%"></i>').join('');}
+function renderScreen(){const c=q('#content');if(!c)return;const st=c.scrollTop;
+  c.innerHTML=(SCREENS[S.screen]||screenHub)();c.scrollTop=st;setArt();updateLive();updateSpark();}
+function render(){
+  setTheme();setArt();renderHUD();renderNav();renderScreen();renderLog();updateLive();
+  document.querySelectorAll('[data-act="variant"]').forEach(b=>b.classList.toggle('on',b.dataset.v===S.variant));
+}
+
+/* === ЭКРАНЫ === */
+function screenHub(){
+  return ''+
+  '<div class="panel clickable" data-act="strike">'+
+    '<h3>Тренировочный голем <span class="tag">LV '+S.level+' · клик = удар</span></h3>'+
+    '<div class="enemy"><div class="enemy-sigil">✦</div><div class="enemy-hint">НАЖМИТЕ, ЧТОБЫ АТАКОВАТЬ</div></div>'+
+    '<div class="row" style="display:flex;gap:6px"><span style="font:9px ui-monospace;color:var(--muted)">HP</span>'+liveBar('dummy')+
+      '<b style="font:9px ui-monospace;white-space:nowrap" data-live="dummyhp">—</b></div>'+
+  '</div>'+
+  '<div class="grid2">'+
+    '<div class="panel"><h3>DPS <span class="tag">в секунду</span></h3><div class="big" data-live="dps">—</div>'+
+      '<div class="spark" id="spark"></div></div>'+
+    '<div class="panel"><h3>Управление</h3>'+
+      '<button class="btn '+(S.auto?'primary':'')+'" data-act="toggle-auto" style="margin-bottom:6px">'+
+        (S.auto?'● АВТО-АТАКА ВКЛ':'○ АВТО-АТАКА ВЫКЛ')+'</button>'+
+      '<button class="btn" data-act="boss">ВЫЗВАТЬ БОССА ⚔</button>'+
+      '<div class="mini-note">Энергия: <b data-live="energy">—</b></div>'+
+    '</div>'+
+  '</div>'+
+  '<div class="panel"><h3>Оффлайн-добыча <span class="tag" data-live="offline">—</span></h3>'+
+    '<div class="kv"><span>Золото</span><b>2.35M</b></div><div class="kv"><span>Кристаллы</span><b>18,450</b></div>'+
+    '<div class="kv"><span>Опыт</span><b>1.25M</b></div>'+
+    '<div class="row" style="margin-top:7px">'+
+      '<button class="btn primary" data-act="claim-offline" '+(S.offlineReady?'':'disabled')+'>ЗАБРАТЬ</button>'+
+      '<button class="btn mini" data-act="sim-offline">+12ч</button></div>'+
+  '</div>'+
+  '<div class="panel"><div class="hintline">Золото и опыт капают сами. Победа над големом даёт бонус. '+
+    'Инвентарь, герой, карта и магазин — на нижней панели.</div></div>';
+}
+function screenBattle(){
+  const b=S.battle;
+  if(!b)return '<div class="panel"><h3>Подземелье</h3><div class="hintline">Босс не вызван. '+
+    'Выберите зону на карте или вызовите босса текущей локации.</div>'+
+    '<button class="btn primary" data-act="start-battle" style="margin-top:9px">ВЫЗВАТЬ: '+esc(ZONES[S.currentZone].enemy)+'</button>'+
+    '<button class="btn" data-act="nav" data-screen="map" style="margin-top:6px">К КАРТЕ ЗОН</button></div>';
+  if(b.won)return '<div class="panel"><h3>Победа ✦</h3><div class="enemy"><div class="enemy-sigil">◈</div>'+
+    '<div class="enemy-hint">БОСС ПОВЕРЖЕН</div></div>'+
+    '<div class="kv"><span>'+esc(b.enemy)+'</span><b>0 / '+fmt(b.max)+'</b></div>'+
+    '<div class="kv"><span>Награда</span><b>2.35M · 450 ◆ · лут</b></div>'+
+    '<button class="btn primary" data-act="loot" style="margin-top:8px">ЗАБРАТЬ ЛУТ</button></div>';
+  return ''+
+  '<div class="panel"><h3>'+esc(b.enemy)+' <span class="tag">БОСС · '+esc(ZONES[S.currentZone].n)+'</span></h3>'+
+    '<div class="row" style="display:flex;gap:6px"><span style="font:9px ui-monospace;color:var(--muted)">HP</span>'+liveBar('boss')+
+      '<b style="font:9px ui-monospace;white-space:nowrap" data-live="bosshp">—</b></div>'+
+    '<div class="row" style="display:flex;gap:6px;margin-top:8px"><span style="font:9px ui-monospace;color:var(--muted)">ВЫ</span>'+liveBar('player')+
+      '<b style="font:9px ui-monospace;white-space:nowrap" data-live="playerhp">—</b></div>'+
+  '</div>'+
+  '<div class="panel"><h3>Способности <span class="tag">энергия <b data-live="energy">—</b></span></h3>'+
+    '<div class="grid3">'+ABILITIES.map((a,i)=>'<button class="btn mini" data-act="ability" data-i="'+i+'">'+
+      a.g+' '+a.n+' <span style="color:var(--muted)">·'+a.cost+'⚡</span></button>').join('')+'</div>'+
+    '<div class="mini-note">Клик по способности = мгновенный burst урона. Авто-бой: '+(S.auto?'вкл':'выкл')+'.</div>'+
+  '</div>'+
+  '<div class="panel"><h3>Лог боя</h3><div class="combatlog">'+b.log.map(l=>'<div>'+esc(l)+'</div>').join('')+'</div></div>'+
+  '<div class="grid2"><button class="btn" data-act="toggle-auto">'+(S.auto?'Выключить авто':'Включить авто')+'</button>'+
+    '<button class="btn" data-act="retreat">Отступить</button></div>';
+}
+function screenHero(){
+  const P=power(),stats={STR:Math.round(P*0.42),AGI:Math.round(P*0.31),INT:Math.round(P*0.27)};
+  const eq=SLOTS.map(s=>{const id=S.equipped[s],d=id?item(id):null;
+    return '<button class="eqslot '+(id?'filled':'')+'" data-act="eqslot" data-slot="'+s+'">'+
+      '<span class="g">'+(d?d.g:'＋')+'</span><span class="l">'+SLOT[s]+'</span></button>';}).join('');
+  let eqPanel='';
+  if(S.eqSlot){const sl=S.eqSlot,id=S.equipped[sl],list=S.inventory.filter(x=>item(x.id).slot===sl);
+    eqPanel='<div class="panel detail"><h3>Слот: '+SLOT[sl]+' <span class="tag" data-act="eqslot" data-slot="">✕</span></h3>'+
+      (id?'<div class="kv"><span>Надето</span><b>'+esc(item(id).n)+' +'+item(id).pow+'</b></div>'+
+        '<button class="btn mini" data-act="unequip" data-slot="'+sl+'" style="margin-bottom:7px">СНЯТЬ</button>':'')+
+      (list.length?'<div class="hintline" style="margin-bottom:6px">Надеть из инвентаря:</div>'+
+        list.map(x=>'<button class="btn mini" style="width:100%;margin-bottom:4px;text-align:left" data-act="equip" data-uid="'+x.uid+'">'+
+          item(x.id).g+' '+esc(item(x.id).n)+' +'+item(x.id).pow+' <span style="color:var(--muted)">×'+x.qty+'</span></button>').join('')
+        :'<div class="hintline">Подходящих предметов в инвентаре нет.</div>')+'</div>';}
+  return ''+
+  '<div class="panel"><h3>Герой <span class="tag">LV '+S.level+'</span></h3>'+
+    '<div class="row" style="justify-content:space-between"><div><div class="hintline">БОЕВАЯ МОЩЬ</div>'+
+      '<div class="big" data-live="power">—</div></div><div style="text-align:right"><div class="hintline">DPS</div>'+
+      '<div class="big" data-live="dps">—</div></div></div>'+
+    '<div style="margin-top:8px">'+Object.entries(stats).map(([k,v])=>
+      '<div class="kv"><span>'+k+'</span><b>'+fmt(v)+'</b></div>'+barHTML(v,P*0.5,18,k==='STR'?'var(--accent)':'var(--accent2)')).join('')+'</div>'+
+  '</div>'+
+  '<div class="panel"><h3>Экипировка <span class="tag">клик по слоту</span></h3><div class="eq">'+eq+'</div></div>'+
+  eqPanel+
+  '<div class="panel"><h3>Навыки <span class="tag">очки: <b data-live="sp">—</b></span></h3>'+
+    '<div class="grid3">'+SKILLS.map((s,i)=>{const l=S.skills[i],mx=5;
+      return '<button class="sknode '+(l>=mx?'max':'')+'" data-act="skill" data-i="'+i+'" '+(l>=mx||S.skillPoints<1?'disabled':'')+'>'+
+        '<span class="g">'+s.g+'</span>'+esc(s.n)+'<span class="lv">'+l+' / '+mx+'</span></button>';}).join('')+'</div>'+
+    '<div class="mini-note">'+esc(SKILLS[0].d)+' за уровень. Очки приходят с повышением уровня.</div>'+
+  '</div>';
+}
+function screenInventory(){
+  const f=S.filter;let list=S.inventory.slice();
+  if(f!=='all')list=list.filter(x=>{const d=item(x.id);
+    if(f==='weapon')return d.slot==='weapon';if(f==='armor')return d.slot&&d.slot!=='weapon';return !!d.mat;});
+  if(S.sort==='power')list.sort((a,b)=>item(b.id).pow-item(a.id).pow);
+  else list.sort((a,b)=>({legendary:0,epic:1,rare:2,common:3}[item(a.id).r]-{legendary:0,epic:1,rare:2,common:3}[item(b.id).r]));
+  const slots=[];for(let i=0;i<30;i++){const x=list[i];
+    slots.push(x?'<button class="slot '+(S.selItem===x.uid?'sel':'')+'" data-r="'+item(x.id).r+'" data-act="selitem" data-uid="'+x.uid+'">'+
+      '<span>'+item(x.id).g+'</span>'+(x.qty>1?'<span class="qty">'+x.qty+'</span>':'')+'</button>'
+      :'<div class="slot empty"></div>');}
+  const sel=findItem(S.selItem),d=sel?item(sel.id):null;
+  let detail='';
+  if(sel)detail='<div class="panel detail"><h3>'+d.g+' '+esc(d.n)+
+    ' <span class="tag rar" style="color:'+RAR[d.r].c+'">'+RAR[d.r].l+'</span></h3>'+
+    '<div class="kv"><span>Тип</span><b>'+(d.slot?SLOT[d.slot]:'Материал')+'</b></div>'+
+    '<div class="kv"><span>Мощь</span><b>+'+fmt(d.pow)+'</b></div>'+
+    '<div class="kv"><span>Количество</span><b>×'+sel.qty+'</b></div>'+
+    '<div class="kv"><span>Цена</span><b>'+fmt(d.price*sel.qty)+' ◉</b></div>'+
+    '<div class="hintline" style="margin:6px 0 8px">'+esc(d.desc)+'</div>'+
+    '<div class="grid2">'+(d.slot?'<button class="btn primary" data-act="equip" data-uid="'+sel.uid+'">НАДЕТЬ</button>':
+      '<button class="btn" disabled>НЕ НАДЕВАЕТСЯ</button>')+
+      '<button class="btn" data-act="sell" data-uid="'+sel.uid+'">ПРОДАТЬ</button></div>'+
+    '<button class="btn" data-act="salvage" data-uid="'+sel.uid+'" style="margin-top:6px">РАСПЫЛИТЬ → ◆</button></div>';
+  const FILTERS=[['all','ВСЕ'],['weapon','ОРУЖИЕ'],['armor','БРОНЯ'],['mat','РЕСУРСЫ']];
+  return ''+
+  '<div class="panel"><h3>Инвентарь <span class="tag">'+S.inventory.length+' / 30 · клик по предмету</span></h3>'+
+    '<div class="tabs">'+FILTERS.map(([k,l])=>'<button class="'+(f===k?'on':'')+'" data-act="filter" data-f="'+k+'">'+l+'</button>').join('')+'</div>'+
+    '<div class="invgrid">'+slots.join('')+'</div>'+
+    '<div class="row" style="margin-top:8px"><button class="btn mini" data-act="sort">СОРТИРОВКА: '+(S.sort==='power'?'МОЩЬ':'РЕДКОСТЬ')+'</button>'+
+      '<button class="btn mini" data-act="salvage-all">РАСПЫЛИТЬ ОБЫЧНОЕ</button></div>'+
+  '</div>'+detail+
+  '<div class="panel"><div class="hintline">Рамка предмета = редкость. Надетый предмет уходит из инвентаря и добавляет мощь герою — проверьте экран «Герой».</div></div>';
+}
+function screenMap(){
+  const z=ZONES[S.selZone],unlocked=S.zones[S.selZone];
+  const lines=ZONES.slice(1).map((p,i)=>'<line x1="'+ZONES[i].x+'" y1="'+ZONES[i].y+'" x2="'+p.x+'" y2="'+p.y+
+    '" stroke="rgba(255,255,255,.18)" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>').join('');
+  const nodes=ZONES.map((p,i)=>'<button class="znode '+(S.zones[i]?'unlocked':'')+' '+(S.currentZone===i?'current':'')+
+    ' '+(S.selZone===i?'sel':'')+'" style="left:'+p.x+'%;top:'+p.y+'%" data-act="zone" data-i="'+i+'">'+
+    (S.zones[i]?'✦':'⌁')+'</button>').join('');
+  let action='';
+  if(!unlocked){
+    const can=S.level>=z.req&&S.gold>=z.cost;
+    action='<button class="btn primary" data-act="unlock-zone" data-i="'+S.selZone+'" '+(can?'':'disabled')+'>'+
+      'ОТКРЫТЬ ЗА '+fmt(z.cost)+' ◉</button>'+
+      '<div class="mini-note">Требуется LV '+z.req+' · мощь '+fmt(z.power)+'</div>';
+  }else{
+    action='<button class="btn primary" data-act="enter-zone" data-i="'+S.selZone+'">ВОЙТИ В ЗОНУ ⚔</button>'+
+      '<div class="mini-note">Босс зоны: '+esc(z.enemy)+'</div>';
+  }
+  return ''+
+  '<div class="panel"><h3>Карта мира <span class="tag">клик по ноде</span></h3>'+
+    '<div class="map"><svg class="maplines" viewBox="0 0 100 100" preserveAspectRatio="none">'+lines+'</svg>'+nodes+'</div>'+
+  '</div>'+
+  '<div class="panel"><h3>'+esc(z.n)+' <span class="tag">'+(unlocked?'ОТКРЫТА':'ЗАКРЫТА')+'</span></h3>'+
+    '<div class="kv"><span>Рек. мощь</span><b>'+fmt(z.power)+'</b></div>'+
+    '<div class="kv"><span>Ваша мощь</span><b data-live="power">—</b></div>'+
+    '<div class="kv"><span>Награда</span><b>'+esc(z.rw)+'</b></div>'+
+    '<div class="kv"><span>Исследовано</span><b>'+z.prog+'%</b></div>'+liveBar('zone')+
+    '<div style="margin-top:9px">'+action+'</div></div>'+
+  '<div class="panel"><div class="hintline">Открытая зона становится доступна для боя; «Войти» переносит её босса в экран «Бой».</div></div>';
+}
+function screenShop(){
+  const tab=S.shopTab,offers=OFFERS[tab];
+  return ''+
+  '<div class="panel"><h3>Магазин / Гильдия <span class="tag">до конца: <b data-live="timer">—</b></span></h3>'+
+    '<div class="tabs"><button class="'+(tab==='daily'?'on':'')+'" data-act="shop-tab" data-t="daily">ЕЖЕДНЕВНОЕ</button>'+
+      '<button class="'+(tab==='weekly'?'on':'')+'" data-act="shop-tab" data-t="weekly">ЕЖЕНЕДЕЛЬНОЕ</button></div>'+
+    '<div class="grid2">'+offers.map((o,i)=>'<div class="offer"><span class="g">'+o.g+'</span>'+
+      '<div class="n">'+esc(o.n)+'</div><div class="p">'+(o.cur==='gold'?'◉ ':'◆ ')+fmt(o.price)+'</div>'+
+      '<button class="primary" data-act="buy" data-i="'+i+'">КУПИТЬ</button></div>').join('')+'</div>'+
+  '</div>'+
+  '<div class="panel"><h3>Вклад в гильдию <span class="tag" data-live="guild">—</span></h3>'+liveBar('guild')+
+    '<div class="kv"><span>Взнос</span><b>500 ◉ → +500 вклада</b></div>'+
+    '<button class="btn" data-act="guild" style="margin-top:7px">ВНЕСТИ 500 ◉</button>'+
+    '<div class="mini-note">При заполнении шкалы: +500 ◆ и сброс вклада.</div></div>'+
+  '<div class="panel"><div class="hintline">Покупка реально списывает валюту и кладёт предмет в инвентарь — проверьте экран «Инвентарь».</div></div>';
+}
+const SCREENS={hub:screenHub,battle:screenBattle,hero:screenHero,inventory:screenInventory,map:screenMap,shop:screenShop};
+
+/* === МЕХАНИКА === */
+function hitDummy(dmg,manual){
+  S.dummyHp-=dmg;
+  floatNumber(fmt(dmg),manual);
+  if(S.dummyHp<=0){S.dummyHp=S.dummyMax;S.gold+=250000;S.exp+=40000;
+    log('Голем повержен: +250K ◉, +40K EXP','gold');toast('Голем повержен · +250K ◉');}
+  if(S.screen==='hub'&&manual)updateLive();
+}
+function startBattle(i){
+  const z=ZONES[i]||ZONES[0];
+  S.battle={active:true,won:false,enemy:z.enemy,hp:z.hp,max:z.hp,playerHp:100,
+    log:['Бой начался: '+z.enemy],loot:null};
+  log('Бой с «'+z.enemy+'»','battle');
+}
+function battleVictory(){
+  const b=S.battle;if(!b)return;
+  b.hp=0;b.active=false;b.won=true;b.log.unshift('Босс повержен! Лут готов.');
+  log('Победа над «'+b.enemy+'»','gold');toast('Победа! Заберите лут');
+}
+function battleTick(D){
+  const b=S.battle;if(!b||!b.active)return;
+  b.hp-=D;b.playerHp=Math.max(1,b.playerHp-0.35);
+  if(S.ticks%3===0){b.log.unshift('Авто-урон '+fmt(D)+' по '+b.enemy);if(b.log.length>8)b.log.pop();}
+  floatNumber(fmt(D),false);
+  if(b.hp<=0)battleVictory();
+}
+function tick(){
+  S.ticks++;const D=dps();
+  if(S.auto){
+    S.gold+=Math.round(D*0.03);
+    S.exp+=Math.round(S.expMax/45);
+    if(S.screen==='hub')hitDummy(D,false);
+    if(S.battle&&S.battle.active)battleTick(D);
+  }
+  if(S.exp>=S.expMax){S.exp-=S.expMax;S.level++;S.expMax=Math.round(S.expMax*1.18);S.skillPoints+=2;
+    log('Уровень '+S.level+'! +2 очка навыков','gold');toast('LEVEL UP · '+S.level);save();render();}
+  if(S.ticks%5===0)S.energy=Math.min(S.energyMax,S.energy+1);
+  if(S.timer>0)S.timer--;
+  if(S.offline>0)S.offline--;
+  S.spark.push(35+Math.random()*60);if(S.spark.length>24)S.spark.shift();
+  if(S.screen==='battle'&&S.ticks%2===0)renderScreen();
+  updateLive();updateSpark();
+  if(S.ticks%6===0)save();
+}
+
+/* === ДЕЙСТВИЯ === */
+const ACTIONS={
+  nav(d){S.screen=d.screen;render();},
+  variant(d){S.variant=d.v;log('Цветокор: '+V[d.v].label,'info');save();render();},
+  reset(){if(!confirm('Сбросить весь прогресс прототипа?'))return;
+    try{localStorage.removeItem(SAVE);}catch(e){}S=defState();log('Прогресс сброшен','err');save();render();},
+  'toggle-auto'(){S.auto=!S.auto;log('Авто-атака: '+(S.auto?'вкл':'выкл'),'info');save();renderScreen();},
+  strike(){hitDummy(Math.round(dps()*3),true);S.gold+=Math.round(dps()*0.05);
+    S.exp+=Math.round(S.expMax/300);updateLive();},
+  boss(){S.currentZone=Math.max(1,S.currentZone);startBattle(S.currentZone);S.screen='battle';render();},
+  'claim-offline'(){if(!S.offlineReady){toast('Лут уже забран');return;}
+    S.gold+=2350000;S.gems+=18450;S.exp+=1250000;S.offline=0;S.offlineReady=false;
+    log('Оффлайн-лут: +2.35M ◉, +18.45K ◆','gold');toast('Оффлайн-лут получен');save();renderScreen();},
+  'sim-offline'(){S.offline=12*3600;S.offlineReady=true;toast('Симулировано 12ч оффлайна');renderScreen();},
+  'start-battle'(){startBattle(S.currentZone);render();},
+  ability(d){
+    const a=ABILITIES[+d.i],b=S.battle;if(!a||!b||!b.active)return;
+    if(S.energy<a.cost){toast('Не хватает энергии');return;}
+    S.energy-=a.cost;const dmg=Math.round(dps()*a.mult);b.hp-=dmg;
+    b.log.unshift(a.n+': КРИТ '+fmt(dmg));if(b.log.length>8)b.log.pop();
+    floatNumber(fmt(dmg),true);log(a.n+' по '+b.enemy+': '+fmt(dmg),'battle');
+    if(b.hp<=0)battleVictory();save();renderScreen();},
+  loot(){
+    S.gold+=2350000;S.gems+=450;S.exp+=1250000;
+    const pool=['shard','core','token','scroll','booster','aegis','ward_helm','ruin_plate','ash_cape','focus_ring'];
+    for(let i=0;i<3;i++)addItem(pool[Math.floor(Math.random()*pool.length)],1+Math.floor(Math.random()*8));
+    log('Лут получен: +2.35M ◉, +450 ◆, 3 предмета','item');toast('Лут добавлен в инвентарь');
+    S.battle=null;S.screen='hub';save();render();},
+  retreat(){S.battle=null;S.screen='hub';log('Отступление из подземелья','info');save();render();},
+  eqslot(d){S.eqSlot=d.slot||null;renderScreen();},
+  equip(d){
+    const x=findItem(d.uid);if(!x)return;const it=item(x.id);if(!it.slot)return;
+    const prev=S.equipped[it.slot];if(prev)addItem(prev,1);
+    S.equipped[it.slot]=x.id;x.qty--;if(x.qty<=0)removeItem(x.uid);else S.selItem=null;
+    S.eqSlot=null;log('Надето: '+it.n+' (+'+it.pow+')','item');toast(it.n+' надето');save();render();},
+  unequip(d){
+    const sl=d.sl||d.slot,id=S.equipped[sl];if(!id)return;
+    addItem(id,1);S.equipped[sl]=null;log('Снято: '+item(id).n,'item');save();render();},
+  filter(d){S.filter=d.f;S.selItem=null;renderScreen();},
+  sort(){S.sort=S.sort==='power'?'default':'power';renderScreen();},
+  selitem(d){S.selItem=d.uid;renderScreen();},
+  sell(d){
+    const x=findItem(d.uid);if(!x)return;const g=item(x.id).price*x.qty;S.gold+=g;
+    log('Продано: '+item(x.id).n+' ×'+x.qty+' → '+fmt(g)+' ◉','gold');
+    removeItem(x.uid);toast('+'+fmt(g)+' ◉');save();render();},
+  salvage(d){
+    const x=findItem(d.uid);if(!x)return;const g=x.qty*25;S.gems+=g;
+    log('Распылено: '+item(x.id).n+' → +'+g+' ◆','item');
+    removeItem(x.uid);toast('+'+g+' ◆');save();render();},
+  'salvage-all'(){
+    let n=0,g=0;S.inventory=S.inventory.filter(x=>{if(item(x.id).r==='common'){n++;g+=x.qty*25;return false;}return true;});
+    S.gems+=g;S.selItem=null;log('Распылено обычных предметов: '+n+' → +'+g+' ◆','item');
+    toast('+'+g+' ◆');save();render();},
+  skill(d){
+    const i=+d.i;if(S.skillPoints<1||S.skills[i]>=5){toast('Нет очков или навык максимум');return;}
+    S.skills[i]++;S.skillPoints--;log('Навык «'+SKILLS[i].n+'» → '+S.skills[i]+'/5','item');
+    toast('Мощь выросла');save();render();},
+  zone(d){S.selZone=+d.i;renderScreen();},
+  'unlock-zone'(){
+    const i=S.selZone,z=ZONES[i];if(S.level<z.req||S.gold<z.cost){toast('Не выполнены условия');return;}
+    S.gold-=z.cost;S.zones[i]=true;log('Открыта зона «'+z.n+'» за '+fmt(z.cost)+' ◉','gold');
+    toast('Зона открыта');save();render();},
+  'enter-zone'(){
+    const i=S.selZone;if(!S.zones[i]){toast('Зона закрыта');return;}
+    S.currentZone=i;startBattle(i);S.screen='battle';render();},
+  'shop-tab'(d){S.shopTab=d.t;renderScreen();},
+  buy(d){
+    const o=OFFERS[S.shopTab][+d.i];if(!o)return;const cur=o.cur==='gold'?'gold':'gems';
+    if(S[cur]<o.price){toast('Не хватает валюты');return;}
+    S[cur]-=o.price;addItem(o.item,o.qty);
+    log('Куплено: '+o.n+' за '+fmt(o.price)+(o.cur==='gold'?' ◉':' ◆'),'item');
+    toast(o.n+' в инвентаре');save();render();},
+  guild(){
+    if(S.gold<500){toast('Не хватает золота');return;}
+    S.gold-=500;S.guild+=500;
+    if(S.guild>=S.guildMax){S.guild=0;S.gems+=500;log('Гильдия: цель достигнута, +500 ◆','gold');toast('Цель гильдии: +500 ◆');}
+    else log('Вклад в гильдию +500','info');
+    save();render();}
+};
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-act]');if(!t)return;
+  const fn=ACTIONS[t.dataset.act];if(fn){e.preventDefault();fn(t.dataset,t,e);}
+});
+document.addEventListener('keydown',e=>{
+  if(e.key>='1'&&e.key<='6'){S.screen=NAV[+e.key-1][0];render();}
+  else if(e.key===' '){e.preventDefault();ACTIONS.strike();}
+  else if(e.key.toLowerCase()==='a')ACTIONS.variant({v:'a'});
+  else if(e.key.toLowerCase()==='b')ACTIONS.variant({v:'b'});
+});
+
+/* === СТАРТ === */
+log('Прототип запущен. Кликайте по элементам интерфейса.','info');
+render();
+setInterval(tick,1000);
+setInterval(save,10000);
+</script>
 </body>
 </html>
