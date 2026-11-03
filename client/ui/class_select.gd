@@ -38,11 +38,11 @@ const PORTRAIT_W := 96
 const CLASSES := [
 	["warrior", "ВОИН", "ТАНК", "ДЕРЖИТ УДАР И ПРИКРЫВАЕТ СВОИХ", 140, 20, 12, 16],
 	["mage", "МАГ", "УРОН", "БЬЁТ ПО ПЛОЩАДИ, СЛАБ ВБЛИЗИ", 80, 120, 18, 5],
-	["duelist", "ДУЭЛЯНТ", "БЛИЖНИЙ", "ДВЕ ШПАГИ, БЫСТРЫЕ СЕРИИ", 100, 40, 16, 8],
-	["rogue", "РАЗБОЙНИК", "КРИТ", "ЗАХОДИТ В СПИНУ, БЬЁТ БОЛЬНО", 90, 40, 19, 6],
+	["duelist", "ДУЭЛЬ", "БЛИЖНИЙ", "ДВЕ ШПАГИ, БЫСТРЫЕ СЕРИИ", 100, 40, 16, 8],
+	["rogue", "РОГА", "КРИТ", "ЗАХОДИТ В СПИНУ, БЬЁТ БОЛЬНО", 90, 40, 19, 6],
 	["cleric", "ЖРЕЦ", "ЛЕКАРЬ", "ЛЕЧИТ СВОИХ, ЖЖЁТ НЕЖИТЬ", 95, 100, 9, 10],
 	["paladin", "ПАЛАДИН", "ГИБРИД", "СВЕТ И СТАЛЬ: ДЕРЖИТ И ЛЕЧИТ", 130, 60, 13, 14],
-	["ranger", "СЛЕДОПЫТ", "СТРЕЛОК", "ЛУК, ЛОВУШКИ И БЫСТРЫЕ НОГИ", 95, 50, 15, 8],
+	["ranger", "ЛУЧНИК", "СТРЕЛОК", "ЛУК, ЛОВУШКИ И БЫСТРЫЕ НОГИ", 95, 50, 15, 8],
 ]
 
 const PORTRAITS := {
@@ -155,7 +155,7 @@ func _confirm() -> void:
 func _cell_rect(i: int) -> Rect2i:
 	var col := i % 3
 	var row := i / 3
-	return Rect2i(4 + col * 58, 26 + row * 70, 56, 66)
+	return Rect2i(3 + col * 59, 26 + row * 70, 57, 66)
 
 
 func _confirm_rect() -> Rect2i:
@@ -290,13 +290,8 @@ func _draw_cell(i: int) -> void:
 				_px(px - 1, py + k, GOLD_HI)
 				_px(px + size, py + k, GOLD_HI)
 
-	var name: String = info[1]
-	if PixelFont.width(name) > r.size.x - 4:
-		_text_tiny(name, r.position.x + (r.size.x - name.length() * 3 + 1) / 2,
-			r.position.y + 46, GOLD_HI if is_sel else TEXT)
-	else:
-		_text_center(name, r.position.x + r.size.x / 2, r.position.y + 46,
-			GOLD_HI if is_sel else TEXT)
+	_text_center(info[1], r.position.x + r.size.x / 2, r.position.y + 46,
+		GOLD_HI if is_sel else TEXT)
 	_text_center(info[2], r.position.x + r.size.x / 2, r.position.y + 55, TEXT_DIM)
 
 	if is_sel:
