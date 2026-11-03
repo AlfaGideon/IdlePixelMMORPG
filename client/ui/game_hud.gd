@@ -304,6 +304,11 @@ func _maybe_capture() -> void:
 
 # --- примитивы ----------------------------------------------------------
 
+func _hash01(n: int, salt: float) -> float:
+	var x := sin(n * 12.9898 + salt * 78.233) * 43758.5453
+	return x - floorf(x)
+
+
 func _px(x: int, y: int, c: Color) -> void:
 	if x >= 0 and y >= 0 and x < GRID_W and y < GRID_H:
 		_image.set_pixel(x, y, c)
