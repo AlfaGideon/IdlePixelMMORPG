@@ -1,8 +1,8 @@
 # Лог сборки smoke
 
 - ветка: arena/1ac1f842-idlepixelmmorpg
-- коммит: 30c954eb33fe3101d3c6c3fee1319d31a7e6dd45
-- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41659854938
+- коммит: 49ec47d8b01fa4da72ed1f2767d07b04c34b120a
+- запуск: https://github.com/AlfaGideon/IdlePixelMMORPG/actions/runs/41660031401
 
 ```
 ===== import =====
@@ -174,12 +174,6 @@ pixel_scene: герой класса warrior, 6 кадров 24x28
 pixel_scene: палитра 5 цветов, звёзд 96
 pixel_scene: первый кадр, сетка 120x214
 boot: старт, сцена=true, размер=(1280.0, 1280.0)
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:430)
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:431)
-ERROR: Failed to load script "res://ui/game_hud.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 pixel_scene: снимок 0 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture.png (0)
 pixel_scene: снимок 1 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_1.png (0)
 pixel_scene: снимок 2 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_2.png (0)
@@ -187,7 +181,6 @@ boot: класс не выбран — открываю выбор
 class_select: снимок экрана выбора -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/class_capture.png (0)
 WARNING: 8 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-FAIL: run-fresh
 ===== run-returning =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 
@@ -195,34 +188,20 @@ pixel_scene: герой класса warrior, 6 кадров 24x28
 pixel_scene: палитра 5 цветов, звёзд 96
 pixel_scene: первый кадр, сетка 120x214
 boot: старт, сцена=true, размер=(1280.0, 1280.0)
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:430)
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:431)
-ERROR: Failed to load script "res://ui/game_hud.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
 pixel_scene: снимок 0 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture.png (0)
 pixel_scene: снимок 1 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_1.png (0)
 pixel_scene: снимок 2 -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/boot_capture_2.png (0)
+game_hud: класс героя warrior
+game_hud: снимок интерфейса -> /home/runner/work/IdlePixelMMORPG/IdlePixelMMORPG/client/game_capture.png (0)
 WARNING: 7 ObjectDB instances were leaked at exit (run with `--verbose` for details).
    at: cleanup (core/object/object.cpp:2536)
-FAIL: run-returning
 ===== check client/scripts/boot.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/pixel_scene.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
 ===== check client/ui/game_hud.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
-
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:430)
-SCRIPT ERROR: Parse Error: Function "_hash01()" not found in base self.
-          at: GDScript::reload (res://ui/game_hud.gd:431)
-ERROR: Failed to load script "res://ui/game_hud.gd" with error "Parse error".
-   at: load (modules/gdscript/gdscript_resource_format.cpp:46)
-FAIL: check client/ui/game_hud.gd
 ===== check client/ui/class_select.gd =====
 Godot Engine v4.7.2.stable.official.ed1daf0bf - https://godotengine.org
-FAIL: нет отметки «game_hud: снимок интерфейса»
-SMOKE FAILED
+SMOKE OK
 ```
