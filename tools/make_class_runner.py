@@ -88,7 +88,8 @@ def draw_body(c: Canvas, name: str, idx: int) -> None:
     back_x = 8 - round(stride * 2)
     for lx, col in ((back_x, dark), (front_x, base)):
         c.rect(lx, hip, lx + 1, 22, col)
-        c.rect(lx - 1, 23, lx + 2, 23, (46, 50, 66, 255))
+        c.rect(lx - 1, 23, lx + 2, 23, (96, 104, 132, 255))
+        c.rect(lx - 1, 24, lx + 2, 24, (58, 62, 86, 255))
 
     # --- плащ за спиной ---
     cape_x = 6 - round(stride * 1.2)
@@ -99,7 +100,7 @@ def draw_body(c: Canvas, name: str, idx: int) -> None:
             c.px(x, y, dark)
 
     # --- корпус ---
-    for y in range(9 + bob, hip):
+    for y in range(10 + bob, hip):
         for x in range(8, 14):
             col = base
             if x <= 8:
@@ -121,8 +122,10 @@ def draw_body(c: Canvas, name: str, idx: int) -> None:
 
 def draw_head(c: Canvas, name: str, bob: int, dark, base, light, metal, skin) -> None:
     y0 = bob
-    # шея/плечи
-    c.rect(9, 8 + y0, 13, 9 + y0, dark)
+    # плечи шире головы — так силуэт читается бойцом, а не столбиком
+    c.rect(7, 8 + y0, 15, 9 + y0, base)
+    c.rect(7, 8 + y0, 8, 9 + y0, dark)
+    c.rect(14, 8 + y0, 15, 9 + y0, light)
 
     if name == "warrior":
         c.rect(8, 1 + y0, 14, 7 + y0, metal)          # глухой шлем
