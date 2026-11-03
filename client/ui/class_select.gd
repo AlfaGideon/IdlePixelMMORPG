@@ -36,13 +36,13 @@ const PORTRAIT_W := 96
 
 # id, имя, роль, описание, hp, mp, atk, def
 const CLASSES := [
-	["warrior", "ВОИН", "ТАНК", "ДЕРЖИТ УДАР, ЗАКРЫВАЕТ СОЮЗНИКОВ", 140, 20, 12, 16],
-	["mage", "МАГ", "УРОН", "БЬЁТ ПО ПЛОЩАДИ, СЛАБ В БЛИЖНЕМ БОЮ", 80, 120, 18, 5],
-	["duelist", "ДУЭЛЯНТ", "БЛИЖНИЙ БОЙ", "ДВЕ ШПАГИ, БЫСТРЫЕ СЕРИИ УДАРОВ", 100, 40, 16, 8],
-	["rogue", "РАЗБОЙНИК", "КРИТ", "ЗАХОДИТ В СПИНУ И БЬЁТ БОЛЬНО", 90, 40, 19, 6],
-	["cleric", "ЖРЕЦ", "ПОДДЕРЖКА", "ЛЕЧИТ СВОИХ И ВЫЖИГАЕТ НЕЖИТЬ", 95, 100, 9, 10],
+	["warrior", "ВОИН", "ТАНК", "ДЕРЖИТ УДАР И ПРИКРЫВАЕТ СВОИХ", 140, 20, 12, 16],
+	["mage", "МАГ", "УРОН", "БЬЁТ ПО ПЛОЩАДИ, СЛАБ ВБЛИЗИ", 80, 120, 18, 5],
+	["duelist", "ДУЭЛЯНТ", "БЛИЖНИЙ", "ДВЕ ШПАГИ, БЫСТРЫЕ СЕРИИ", 100, 40, 16, 8],
+	["rogue", "РАЗБОЙНИК", "КРИТ", "ЗАХОДИТ В СПИНУ, БЬЁТ БОЛЬНО", 90, 40, 19, 6],
+	["cleric", "ЖРЕЦ", "ЛЕКАРЬ", "ЛЕЧИТ СВОИХ, ЖЖЁТ НЕЖИТЬ", 95, 100, 9, 10],
 	["paladin", "ПАЛАДИН", "ГИБРИД", "СВЕТ И СТАЛЬ: ДЕРЖИТ И ЛЕЧИТ", 130, 60, 13, 14],
-	["ranger", "СЛЕДОПЫТ", "ДАЛЬНИЙ БОЙ", "ЛУК, ЛОВУШКИ И БЫСТРЫЕ НОГИ", 95, 50, 15, 8],
+	["ranger", "СЛЕДОПЫТ", "СТРЕЛОК", "ЛУК, ЛОВУШКИ И БЫСТРЫЕ НОГИ", 95, 50, 15, 8],
 ]
 
 const PORTRAITS := {
@@ -153,17 +153,17 @@ func _confirm() -> void:
 # --- геометрия ----------------------------------------------------------
 
 func _cell_rect(i: int) -> Rect2i:
-	var col := i % 2
-	var row := i / 2
-	return Rect2i(6 + col * 85, 42 + row * 62, 83, 58)
+	var col := i % 3
+	var row := i / 3
+	return Rect2i(4 + col * 58, 26 + row * 70, 56, 66)
 
 
 func _confirm_rect() -> Rect2i:
-	return Rect2i(20, 262, 140, 26)
+	return Rect2i(30, 272, 120, 22)
 
 
 func _detail_rect() -> Rect2i:
-	return Rect2i(6, 240, 168, 18)
+	return Rect2i(4, 236, 172, 30)
 
 
 # --- отрисовка ----------------------------------------------------------
@@ -249,10 +249,9 @@ func _render() -> void:
 		for x in GRID_W:
 			_px(x, y, shade)
 
-	_text_center("ВЫБЕРИ КЛАСС", GRID_W / 2, 10, GOLD_HI)
-	_text_center("ЛИЦО СКРЫТО ПОД ШЛЕМОМ ИЛИ КАПЮШОНОМ", GRID_W / 2, 22, TEXT_DIM)
-	for i in 40:
-		_px(GRID_W / 2 - 20 + i, 34, GOLD_DEEP)
+	_text_center("ВЫБЕРИ КЛАСС", GRID_W / 2, 8, GOLD_HI)
+	for i in 44:
+		_px(GRID_W / 2 - 22 + i, 20, GOLD_DEEP)
 
 	for i in CLASSES.size():
 		_draw_cell(i)
@@ -276,39 +275,67 @@ func _draw_cell(i: int) -> void:
 	var edge_hi: Color = GOLD_HI if is_sel else Color8(76, 86, 114)
 	_frame_box(r.position.x, r.position.y, r.size.x, r.size.y, fill, edge, edge_hi)
 
-	# портрет 40×40 слева в клетке
-	var px := r.position.x + 3
-	var py := r.position.y + 5
+	# портрет 40×40 в верхней части клетки
+	var size := 40
+	var px := r.position.x + (r.size.x - size) / 2
+	var py := r.position.y + 3
 	var portrait: Image = _portraits.get(info[0])
 	if portrait != null:
-		var tint: Color = Color.WHITE if is_sel else Color8(196, 202, 220)
-		_blit(portrait, px, py, 40, tint)
+		var tint: Color = Color.WHITE if is_sel else Color8(186, 192, 210)
+		_blit(portrait, px, py, size, tint)
 		if is_sel:
-			for k in 40:
+			for k in size:
 				_px(px + k, py - 1, GOLD_HI)
-				_px(px + k, py + 40, GOLD_HI)
-			for k in 40:
+				_px(px + k, py + size, GOLD_HI)
 				_px(px - 1, py + k, GOLD_HI)
-				_px(px + 40, py + k, GOLD_HI)
+				_px(px + size, py + k, GOLD_HI)
 
-	_text(str(info[1]), px + 45, py + 1, GOLD_HI if is_sel else TEXT)
-	_text(str(info[2]), px + 45, py + 10, TEXT_DIM)
-	var hp_val := float(info[4]) / 140.0
-	var atk_val := float(info[6]) / 19.0
-	_text("ЗД", px + 45, py + 21, TEXT_DIM)
-	_stat_bar(px + 56, py + 22, 24, hp_val, HP_A, HP_B)
-	_text("АТ", px + 45, py + 29, TEXT_DIM)
-	_stat_bar(px + 56, py + 30, 24, atk_val, ATK_A, ATK_B)
+	var name: String = info[1]
+	if PixelFont.width(name) > r.size.x - 4:
+		_text_tiny(name, r.position.x + (r.size.x - name.length() * 3 + 1) / 2,
+			r.position.y + 46, GOLD_HI if is_sel else TEXT)
+	else:
+		_text_center(name, r.position.x + r.size.x / 2, r.position.y + 46,
+			GOLD_HI if is_sel else TEXT)
+	_text_center(info[2], r.position.x + r.size.x / 2, r.position.y + 55, TEXT_DIM)
 
 	if is_sel:
-		var mark_y := r.end.y - 7
-		_text_center("ВЫБРАН", r.position.x + r.size.x / 2, mark_y, GOLD_HI)
-		for k in r.size.x - 8:
-			_px(r.position.x + 4 + k, r.end.y - 1, GOLD_HI)
+		for k in r.size.x - 6:
+			_px(r.position.x + 3 + k, r.end.y - 2, GOLD_HI)
+
+
+func _text_tiny(s: String, x: int, y: int, c: Color) -> void:
+	# сжатый по горизонтали шрифт: каждый второй столбец глифа
+	var cursor := x
+	var upper := s.to_upper()
+	for i in upper.length():
+		var glyph: Array = PixelFont.GLYPHS.get(upper[i], [])
+		for row in glyph.size():
+			var line: String = glyph[row]
+			for col in range(0, line.length(), 2):
+				if line[col] == "#":
+					_px(cursor + col / 2, y + row, c)
+		cursor += 3
 
 
 func _draw_detail(info: Array) -> void:
 	var r := _detail_rect()
 	_frame_box(r.position.x, r.position.y, r.size.x, r.size.y, PANEL, Color8(52, 60, 84),
 		Color8(76, 86, 114))
-	_text(str(info[3]), r.position.x + 5, r.position.y + 6, TEXT_DIM)
+	var words: PackedStringArray = str(info[3]).split(" ", false)
+	var line := ""
+	var lines: Array[String] = []
+	for word in words:
+		var probe := word if line.is_empty() else line + " " + word
+		if PixelFont.width(probe) > r.size.x - 10:
+			lines.append(line)
+			line = word
+		else:
+			line = probe
+	if not line.is_empty():
+		lines.append(line)
+	for i in mini(lines.size(), 2):
+		_text(lines[i], r.position.x + 5, r.position.y + 5 + i * 9, TEXT_DIM)
+	# стартовые характеристики выбранного класса
+	var stats := "ЗД %d  АТ %d  ЗАЩ %d" % [info[4], info[6], info[7]]
+	_text(stats, r.position.x + 5, r.position.y + 22, GOLD_HI)
