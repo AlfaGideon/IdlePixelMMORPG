@@ -81,3 +81,20 @@ python3 tools/check_defold_refs.py               # проверка legacy-пр�
 
 Проверка без телефона: smoke-тест в CI снимает кадр интерфейса в
 `ci-logs/game_capture.png` (переменные `GAME_CAPTURE`, `GAME_CAPTURE_PATH`).
+
+## Герой на полоске загрузки
+
+По полоске бежит персонаж выбранного класса. Спрайты (6 кадров бега, 24×28) —
+`client/art/classes/runner_<класс>.png`, их рисует `tools/make_class_runner.py`
+(воин, маг, дуэлянт, разбойник, жрец, паладин, следопыт).
+
+Класс задаётся настройкой проекта:
+
+```ini
+[game]
+player/hero_class="warrior"   ; пусто — обычный герой
+```
+
+Когда появится экран выбора класса, туда же можно писать через
+`ProjectSettings.set_setting("game/player/hero_class", chosen)` и сохранять
+выбор в профиле игрока — заставка подхватит его при следующем запуске.
