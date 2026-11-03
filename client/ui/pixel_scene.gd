@@ -81,15 +81,12 @@ const RUNNER_W := 20
 const RUNNER_H := 24
 const RUNNER_FRAMES := 6
 
-<<<<<<< HEAD
-=======
 # Класс героя. Пусто — обычный герой; иначе runner_<класс>.png из art/classes.
 const HERO_CLASS_SETTING := "game/player/hero_class"
 const CLASS_FRAME_W := 24
 const CLASS_FRAME_H := 28
 const CLASS_FRAMES := 6
 
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 
 
 var progress := 0.0
@@ -105,13 +102,10 @@ var _star_colors: Array[Color] = []
 var _star_phase: PackedFloat32Array = PackedFloat32Array()
 var _star_speed: PackedFloat32Array = PackedFloat32Array()
 var _runner_frames: Array[Image] = []
-<<<<<<< HEAD
-=======
 var _runner_w := RUNNER_W
 var _runner_h := RUNNER_H
 var _runner_count := RUNNER_FRAMES
 var _hero_class := ""
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 var _canopy: Array[Vector4i] = []
 var _time := 0.0
 var _done_at := -1.0
@@ -151,8 +145,6 @@ func _generate_stars() -> void:
 
 
 func _load_runner() -> void:
-<<<<<<< HEAD
-=======
 	_hero_class = str(ProjectSettings.get_setting(HERO_CLASS_SETTING, "")).strip_edges().to_lower()
 	if not _hero_class.is_empty():
 		var class_path := "res://art/classes/runner_%s.png" % _hero_class
@@ -173,7 +165,6 @@ func _load_runner() -> void:
 				return
 		push_warning("pixel_scene: нет спрайта класса %s, беру обычного героя" % _hero_class)
 
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 	var sheet: Image = RUNNER_SHEET.get_image()
 	if sheet == null:
 		push_error("pixel_scene: не удалось прочитать res://art/runner.png")
@@ -802,17 +793,14 @@ func _draw_runner(t: float) -> void:
 	var fill_w := int((bar.size.x - 2) * clampf(progress, 0.0, 1.0))
 	var moving := progress < 0.999
 	# 12 кадров в секунду: цикл бега целиком проходится за 0.5 с
-<<<<<<< HEAD
 	var index := int(t * 12.0) % RUNNER_FRAMES if moving else 0
 	# не даём герою выйти за полоску и за экран на финише
 	var px0 := clampi(bar.position.x + 1 + fill_w - RUNNER_W / 2, 2, GRID_WIDTH - RUNNER_W - 2)
 	var py0 := bar.position.y - RUNNER_H + 1
-=======
 	var index := int(t * 12.0) % _runner_count if moving else 0
 	# не даём герою выйти за полоску и за экран на финише
 	var px0 := clampi(bar.position.x + 1 + fill_w - _runner_w / 2, 2, GRID_WIDTH - _runner_w - 2)
 	var py0 := bar.position.y - _runner_h + 1
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 
 	# пыль из-под ног
 	for i in 4:
@@ -823,11 +811,8 @@ func _draw_runner(t: float) -> void:
 	if _runner_frames.is_empty():
 		return
 	var sprite: Image = _runner_frames[mini(index, _runner_frames.size() - 1)]
-<<<<<<< HEAD
 	_image.blend_rect(sprite, Rect2i(0, 0, RUNNER_W, RUNNER_H), Vector2i(px0, py0))
-=======
 	_image.blend_rect(sprite, Rect2i(0, 0, _runner_w, _runner_h), Vector2i(px0, py0))
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
 
 
 func _draw_vignette() -> void:

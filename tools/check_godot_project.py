@@ -119,9 +119,7 @@ def main() -> int:
         node_count += check_scene(scene, project, problems)
 
     for script in scripts:
-<<<<<<< HEAD
         for res_path in RES_PATH_RE.findall(script.read_text(encoding="utf-8")):
-=======
         text = script.read_text(encoding="utf-8")
         for res_path in RES_PATH_RE.findall(text):
             # шаблоны вида runner_%s.png собираются в рантайме — проверяем каталог
@@ -130,7 +128,6 @@ def main() -> int:
                 if not folder.is_dir():
                     problems.append(f"{script.relative_to(project)}: нет каталога {res_path}")
                 continue
->>>>>>> a6c7d68 (feat(client): по полоске бежит герой выбранного класса (7 спрайтов, у каждого свой цикл бега))
             if not (project / res_path[6:]).exists():
                 problems.append(f"{script.relative_to(project)}: путь {res_path} не существует")
 
