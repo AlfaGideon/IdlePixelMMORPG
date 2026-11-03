@@ -450,17 +450,17 @@ func _draw_fight() -> void:
 
 	# тени
 	_blob(arena.position.x + 56, ground, 15)
-	_blob(arena.position.x + 172, ground, 17)
+	_blob(arena.position.x + 150, ground, 17)
 
 	# герой — фигура выбранного класса, покачивается
 	if _figure != null:
 		var bob := int(round(sin(_time * 2.2) * 1.0))
-		var hh := 96
-		var hx := arena.position.x + 10 + (34 - hh) / 2
-		_blit_scaled(_figure, hx, ground - hh + 2 + bob, hh)
+		var hh := 92
+		var hx := arena.position.x + 6 + (32 - hh) / 2
+		_blit_scaled(_figure, hx, ground - hh + 1 + bob, hh)
 
 	# враг
-	_draw_slime(arena.position.x + 172, ground)
+	_draw_slime(arena.position.x + 150, ground)
 
 	# числа урона
 	for f in _floats:
@@ -478,7 +478,7 @@ func _draw_fight() -> void:
 	_gold_frame(auto_r.position.x, auto_r.position.y, auto_r.size.x, auto_r.size.y,
 		PANEL_HI if auto_fight else PANEL)
 	_text_center("АВТО", auto_r.position.x + auto_r.size.x / 2, auto_r.position.y + 14,
-		GREEN if auto_fight else TEXT_DIM)
+		GREEN if auto_fight else TEXT)
 
 	_draw_log()
 
