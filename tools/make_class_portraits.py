@@ -35,12 +35,33 @@ def make_portrait(src: Image.Image) -> Image.Image:
     return img
 
 
+def make_alpha_portrait(src: Image.Image, size: int = 192) -> Image.Image:
+    """Портрет без фона: чтобы ставить фигуру на сцену и в рамки."""
+    img = src.convert("RGB").crop(CROP).resize((size, size), Image.LANCZOS)
+    img = ImageEnhance.Contrast(img).enhance(1.1)
+    px = img.load()
+    alpha = Image.new("L", (size, size), 255)
+    ap = alpha.load()
+    for y in range(size):
+        for x in range(size):
+            r, g, b = px[x, y]
+            if max(r, g, b) < 26:                      # чёрный фон
+                ap[x, y] = 0
+            elif max(r, g, b) < 46:                    # кромка — полупрозрачная
+                ap[x, y] = 120
+    out = img.convert("RGBA")
+    out.putalpha(alpha)
+    return out
+
+
 def main() -> None:
     PREVIEW.mkdir(parents=True, exist_ok=True)
     made = []
     for name in CLASSES:
-        img = make_portrait(Image.open(ART / f"{name}.png"))
+        src = Image.open(ART / f"{name}.png")
+        img = make_portrait(src)
         img.save(ART / f"portrait_{name}.png")
+        make_alpha_portrait(src).save(ART / f"figure_{name}.png")
         made.append((name, img))
         print(f"{name}: {img.width}×{img.height}")
 
